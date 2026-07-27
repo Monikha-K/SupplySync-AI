@@ -2,67 +2,46 @@ import React from "react";
 import "../styles/VerificationResult.css";
 
 const VerificationResult = ({ data }) => {
-  // Don't render anything if no data is available
   if (!data) return null;
 
-  const getStatusColor = (status) => {
-    switch ((status || "").toLowerCase()) {
-      case "verified":
-        return "status-green";
-      case "rejected":
-        return "status-red";
-      case "pending":
-        return "status-amber";
-      default:
-        return "status-amber";
-    }
-  };
+  const isSuccess = Boolean(data.success);
+  const statusText = isSuccess ? "Success" : "Failed";
+  const statusColorClass = isSuccess ? "status-green" : "status-red";
+
+  const fields = [
+    { label: "Document Type", value: data.documentType },
+    { label: "Driver Name", value: data.driverName },
+    { label: "Licence Number", value: data.licenseNumber },
+    { label: "Issue Date", value: data.issueDate },
+    { label: "Expiry Date", value: data.expiryDate },
+    { label: "Vehicle Class", value: data.vehicleClass },
+    { label: "Issuing Authority", value: data.issuingAuthority },
+  ];
 
   return (
     <div className="result-card">
       <div className="result-header">
         <h3>Verification Result</h3>
-
-        <span className={`status-badge ${getStatusColor(data.status)}`}>
-          {data.status || "Pending"}
+        <span className={`status-badge ${statusColorClass}`}>
+          {statusText}
         </span>
       </div>
 
       <div className="result-grid">
-        <div className="data-item">
-          <span className="label">Document Type</span>
-          <span className="value">
-            {data.documentType || "N/A"}
-          </span>
-        </div>
-
-        <div className="data-item">
-          <span className="label">Driver Name</span>
-          <span className="value">
-            {data.driverName || "N/A"}
-          </span>
-        </div>
-
-        <div className="data-item">
-          <span className="label">License Number</span>
-          <span className="value">
-            {data.licenseNumber || "N/A"}
-          </span>
-        </div>
-
-        <div className="data-item">
-          <span className="label">Expiry Date</span>
-          <span className="value">
-            {data.expiryDate || "N/A"}
-          </span>
-        </div>
+        {fields.map((field, idx) => (
+          <div className="data-item" key={idx}>
+            <span className="label">{field.label}</span>
+            <span className={`value ${field.value === "Not Found" ? "value-not-found" : ""}`}>
+              {field.value || "Not Found"}
+            </span>
+          </div>
+        ))}
       </div>
 
       <div className="remarks-section">
-        <span className="label">Remarks</span>
-
-        <p className="remarks-text">
-          {data.remarks || "No remarks available."}
+        <span className="label">Original OCR Text</span>
+        <p className="remarks-text" style={{ whiteSpace: 'pre-wrap' }}>
+          {data.ocrText || "Not Found"}
         </p>
       </div>
     </div>

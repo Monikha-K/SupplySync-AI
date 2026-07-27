@@ -15,11 +15,28 @@ const Home = () => {
     setError(null);
     setResult(null);
     try {
-      // Simulate API call
       const response = await verifyDocument(file);
-      setResult(response);
+      if (response && response.success === false) {
+        setError(response.message || "OCR Failed");
+        setResult(response);
+      } else {
+        setResult(response);
+      }
     } catch (err) {
-      setError(err.message || 'An error occurred during verification.');
+      const errorMessage = err.response?.data?.detail || err.message || 'OCR Failed';
+      setError(errorMessage);
+      setResult({
+        success: false,
+        documentType: "Not Found",
+        driverName: "Not Found",
+        licenseNumber: "Not Found",
+        issueDate: "Not Found",
+        expiryDate: "Not Found",
+        vehicleClass: "Not Found",
+        issuingAuthority: "Not Found",
+        ocrText: "Not Found",
+        message: errorMessage
+      });
     } finally {
       setLoading(false);
     }
@@ -29,17 +46,17 @@ const Home = () => {
     <div className="home-page">
       <section className="hero-section">
         <h2>AI Document Verification</h2>
-        <p>Upload logistics documents and verify them using OCR and AI.</p>
+        <p>Upload logistics documents and verify them using OCR and rule-based extraction.</p>
       </section>
       
       <section className="upload-section">
         {!loading && !result && <UploadForm onUpload={handleUpload} />}
-        {loading && <LoadingSpinner message="Verifying document..." />}
+        {loading && <LoadingSpinner message="Extracting fields from document..." />}
         {error && <div className="error-message">{error}</div>}
-        {result && (
+        {result && !loading && (
           <div className="result-container">
             <VerificationResult data={result} />
-            <button className="reset-btn" onClick={() => setResult(null)}>
+            <button className="reset-btn" onClick={() => { setResult(null); setError(null); }}>
               Verify Another Document
             </button>
           </div>
