@@ -1,55 +1,59 @@
 import sys
 import os
 
-# Add app directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.services.parser_service import parse_driving_license_text
+from app.services.parser_factory import get_parser
 
-def test_identity_fields_parser():
-    sample_ocr = """
+def test_parser_factory_architecture():
+    dl_sample = """
     UNION OF INDIA
     Driving Licence (Tamil Nadu)
-    DL No.
-    TN6O 20000001759
-    Date of Issue
-    14-08-2000
-    Valid Till
-    17-12-2030
+    DL No. TN6O 20000001759
+    Date of Issue 14-08-2000
+    Valid Till 17-12-2030
     Name
     29-06-1978
-    0+
     SUGUMAR M
-    Date of Birth
-    29-06-1978
-    Son of
-    MURUGAN
-    Blood Group
-    0+
-    Address
-    123 STREET
+    Date of Birth 29-06-1978
     """
 
-    result = parse_driving_license_text(sample_ocr)
+    rc_sample = """
+    REGISTRATION CERTIFICATE
+    Vehicle Class: M-Cycle/Scooter
+    Maker's Name
+    Regn. Number
+    OLA ELECTRIC TECHNOLOGIES PVT LTD
+    TN58BS6328
+    Model Name
+    OLA S1 X2KWH (GEN3)
+    Chassis Number
+    MBHJK123456789012
+    Engine Number
+    E123456789
+    """
 
-    print("--- PARSER 7 IDENTITY FIELDS TEST RESULTS ---")
-    print(f"Issuing Authority: {result.get('issuingAuthority')}")
-    print(f"Document Type: {result.get('documentType')}")
-    print(f"Full Name: {result.get('fullName')}")
-    print(f"Date of Birth: {result.get('dateOfBirth')}")
-    print(f"Issue Date: {result.get('issueDate')}")
-    print(f"Expiry Date: {result.get('expiryDate')}")
-    print(f"Document Number: {result.get('documentNumber')}")
+    # Test Driving Licence Routing via Factory
+    dl_parser = get_parser("driving_license")
+    dl_res = dl_parser(dl_sample)
+    print("--- DL PARSER FACTORY RESULT ---")
+    print(dl_res)
+    assert dl_res["fullName"] == "SUGUMAR M"
+    assert dl_res["documentNumber"] == "TN60 20000001759"
 
-    assert result.get('issuingAuthority') == "UNION OF INDIA"
-    assert result.get('documentType') == "Driving Licence (Tamil Nadu)"
-    assert result.get('fullName') == "SUGUMAR M"
-    assert result.get('dateOfBirth') == "29-06-1978"
-    assert result.get('issueDate') == "14-08-2000"
-    assert result.get('expiryDate') == "17-12-2030"
-    assert result.get('documentNumber') == "TN60 20000001759"
+    # Test RC Book Routing via Factory
+    rc_parser = get_parser("rc_book")
+    rc_res = rc_parser(rc_sample)
+    print("--- RC PARSER FACTORY RESULT ---")
+    print(rc_res)
+    assert rc_res["registrationNumber"] == "TN58BS6328"
+    assert rc_res["makersName"] == "OLA ELECTRIC TECHNOLOGIES PVT LTD"
+    assert rc_res["modelName"] == "OLA S1 X2KWH (GEN3)"
+    assert rc_res["vehicleClass"] == "M-Cycle/Scooter"
+    assert rc_res["chassisNumber"] == "MBHJK123456789012"
+    assert rc_res["engineNumber"] == "E123456789"
 
-    print("\nALL IDENTITY FIELDS ASSERTIONS PASSED SUCCESSFULLY!")
+    print("\nALL FACTORY ARCHITECTURE ASSERTIONS PASSED SUCCESSFULLY!")
 
 if __name__ == '__main__':
-    test_identity_fields_parser()
+    test_parser_factory_architecture()

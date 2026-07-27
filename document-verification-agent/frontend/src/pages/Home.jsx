@@ -9,31 +9,27 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [docType, setDocType] = useState('driving_license');
 
-  const handleUpload = async (file) => {
+  const handleUpload = async (file, selectedDocType) => {
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const response = await verifyDocument(file);
+      const response = await verifyDocument(file, selectedDocType);
       if (response && response.success === false) {
-        setError(response.message || "OCR Failed");
+        setError(response.message || "OCR Processing Failed");
         setResult(response);
       } else {
         setResult(response);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.detail || err.message || 'OCR Failed';
+      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || 'OCR Processing Failed';
       setError(errorMessage);
       setResult({
         success: false,
-        documentType: "Not Found",
-        driverName: "Not Found",
-        licenseNumber: "Not Found",
-        issueDate: "Not Found",
-        expiryDate: "Not Found",
-        vehicleClass: "Not Found",
-        issuingAuthority: "Not Found",
+        documentType: selectedDocType,
+        data: {},
         ocrText: "Not Found",
         message: errorMessage
       });
@@ -45,13 +41,19 @@ const Home = () => {
   return (
     <div className="home-page">
       <section className="hero-section">
-        <h2>AI Document Verification</h2>
-        <p>Upload logistics documents and verify them using OCR and rule-based extraction.</p>
+        <h2>Document Verification</h2>
+        <p>Select document type and upload for verification.</p>
       </section>
       
       <section className="upload-section">
-        {!loading && !result && <UploadForm onUpload={handleUpload} />}
-        {loading && <LoadingSpinner message="Extracting fields from document..." />}
+        {!loading && !result && (
+          <UploadForm 
+            onUpload={handleUpload} 
+            docType={docType}
+            onDocTypeChange={setDocType}
+          />
+        )}
+        {loading && <LoadingSpinner message="Extracting document fields..." />}
         {error && <div className="error-message">{error}</div>}
         {result && !loading && (
           <div className="result-container">

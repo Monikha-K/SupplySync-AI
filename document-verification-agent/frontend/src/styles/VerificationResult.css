@@ -38,10 +38,6 @@
 }
 
 .status-amber {
-  background: #F59E0B;
-}
-
-.status-amber {
   background-color: rgba(245, 158, 11, 0.15);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -73,16 +69,25 @@
   font-weight: 500;
 }
 
-.remarks-section {
-  background-color: rgba(15, 23, 42, 0.5);
-  padding: 1.25rem;
+.ocr-card {
+  background-color: #1E293B;
+  border: 1px solid #334155;
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  margin-top: 0.75rem;
+  transition: all 0.3s ease-in-out;
 }
 
-.remarks-text {
-  margin-top: 0.5rem;
-  color: var(--heading-color);
+.ocr-text-body {
+  margin: 0;
+  color: #CBD5E1;
+  font-family: monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-height: 350px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 640px) {

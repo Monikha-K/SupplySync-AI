@@ -1,9 +1,9 @@
 # API Routes for Document Verification
 import os
 import logging
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from app.services.ocr_service import extract_text
-from app.services.parser_service import parse_driving_license_text
+from app.services.parser_factory import get_parser
 
 logger = logging.getLogger(__name__)
 
@@ -12,57 +12,65 @@ router = APIRouter()
 
 @router.get("/")
 async def root():
-    """
-    Root endpoint.
-    Returns a welcome message indicating the backend is running.
-    """
+    """Root endpoint."""
     return {"message": "Document Verification Backend Running"}
 
 @router.get("/health")
 async def health_check():
-    """
-    Health check endpoint.
-    Used by load balancers or monitoring tools to verify the service is up.
-    """
+    """Health check endpoint."""
     return {"status": "OK"}
 
 # Constants for file upload
 UPLOAD_DIR = "app/uploads"
-ALLOWED_CONTENT_TYPES = ["application/pdf", "image/png", "image/jpeg", "image/jpg"]
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 @router.post("/upload-document")
-async def upload_document(file: UploadFile = File(None)):
+async def upload_document(
+    file: UploadFile = File(None),
+    documentType: str = Form("driving_license")
+):
     """
-    Uploads a PDF or Image document, runs EasyOCR (with page conversion for PDF),
-    passes text to parser_service for regex rule-based extraction, and returns structured JSON response.
+    Uploads a document (PDF or Image based on documentType), runs EasyOCR,
+    passes text to parser_factory selected parser, and returns structured JSON response.
     """
     # 1. Check if file is missing
     if not file:
         raise HTTPException(status_code=400, detail="File is missing")
 
-    # 2. Validate file type (PDF, PNG, JPG, JPEG)
-    if file.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            status_code=400, 
-            detail="Invalid file type. Only PDF, PNG, JPG, and JPEG files are allowed."
-        )
+    filename = file.filename or ""
+    is_pdf = file.content_type == "application/pdf" or filename.lower().endswith('.pdf')
+    is_image = file.content_type in ["image/png", "image/jpeg", "image/jpg"] or filename.lower().endswith(('.png', '.jpg', '.jpeg'))
+
+    doc_type_clean = (documentType or "driving_license").strip().lower()
+
+    # 2. Format validation based on documentType
+    if doc_type_clean == "rc_book":
+        if not is_pdf:
+            return {
+                "success": False,
+                "message": "For RC Book only PDF files are supported."
+            }
+    else: # driving_license
+        if not (is_pdf or is_image):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Only PDF, PNG, JPG, and JPEG files are allowed for Driving Licence."
+            )
 
     # 3. Read file content to validate size
     file_content = await file.read()
     file_size = len(file_content)
 
-    # 4. Check file size limit
     if file_size > MAX_FILE_SIZE_BYTES:
         raise HTTPException(
             status_code=400, 
             detail="File size exceeds the maximum limit of 10 MB."
         )
 
-    # 5. Ensure the uploads directory exists
+    # 4. Ensure the uploads directory exists
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    # 6. Save the file to disk
+    # 5. Save the file to disk
     file_path = os.path.join(UPLOAD_DIR, file.filename)
     try:
         with open(file_path, "wb") as buffer:
@@ -71,39 +79,30 @@ async def upload_document(file: UploadFile = File(None)):
         logger.error(f"Failed to save uploaded file: {e}")
         raise HTTPException(status_code=500, detail="Failed to save uploaded file")
 
-    # 7. Step 1: Run EasyOCR (handles PDF page splitting automatically)
+    # 6. Step 1: Run EasyOCR
     ocr_result = extract_text(file_path)
     
     if not ocr_result.get("success"):
         error_msg = ocr_result.get("message", "OCR Failed")
         return {
             "success": False,
-            "issuingAuthority": "Not Found",
-            "documentType": "Not Found",
-            "fullName": "Not Found",
-            "dateOfBirth": "Not Found",
-            "issueDate": "Not Found",
-            "expiryDate": "Not Found",
-            "documentNumber": "Not Found",
+            "documentType": doc_type_clean,
+            "data": {},
             "ocrText": error_msg,
             "message": error_msg
         }
 
     raw_ocr_text = ocr_result.get("text", "")
 
-    # 8. Step 2: Pass OCR text into Regex Parser
-    parsed_fields = parse_driving_license_text(raw_ocr_text)
+    # 7. Step 2: Obtain parser from parser_factory and parse OCR text
+    parser_func = get_parser(doc_type_clean)
+    parsed_data = parser_func(raw_ocr_text)
 
-    # 9. Return structured JSON matching required schema
+    # 8. Return structured JSON matching exact required schema
     return {
         "success": True,
-        "issuingAuthority": parsed_fields.get("issuingAuthority", "Not Found"),
-        "documentType": parsed_fields.get("documentType", "Not Found"),
-        "fullName": parsed_fields.get("fullName", "Not Found"),
-        "dateOfBirth": parsed_fields.get("dateOfBirth", "Not Found"),
-        "issueDate": parsed_fields.get("issueDate", "Not Found"),
-        "expiryDate": parsed_fields.get("expiryDate", "Not Found"),
-        "documentNumber": parsed_fields.get("documentNumber", "Not Found"),
+        "documentType": doc_type_clean,
+        "data": parsed_data,
         "ocrText": raw_ocr_text if raw_ocr_text else "Not Found",
         "message": "OCR Extraction Successful"
     }
