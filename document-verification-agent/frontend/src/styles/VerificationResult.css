@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color);
 }
@@ -27,6 +27,9 @@
   font-size: 14px;
   font-weight: 600;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .status-green {
@@ -37,10 +40,44 @@
   background: #EF4444;
 }
 
-.status-amber {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: var(--warning-color);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+.dashboard-summary-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: var(--body-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+.section-title {
+  font-size: 1.1rem;
+  color: var(--heading-color);
+  margin-bottom: 1.25rem;
+  border-left: 3px solid var(--primary-color);
+  padding-left: 0.6rem;
 }
 
 .result-grid {
@@ -69,11 +106,40 @@
   font-weight: 500;
 }
 
+.value-not-found {
+  color: var(--warning-color);
+  font-style: italic;
+}
+
+.ocr-collapsible-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.ocr-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.ocr-toggle-btn:hover {
+  opacity: 0.85;
+}
+
 .ocr-card {
   background-color: #1E293B;
   border: 1px solid #334155;
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 16px;
   margin-top: 0.75rem;
   transition: all 0.3s ease-in-out;
 }
@@ -91,6 +157,10 @@
 }
 
 @media (max-width: 640px) {
+  .dashboard-summary-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
   .result-grid {
     grid-template-columns: 1fr;
   }

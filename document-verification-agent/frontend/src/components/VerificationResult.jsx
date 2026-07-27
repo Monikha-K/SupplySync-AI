@@ -9,8 +9,12 @@ const VerificationResult = ({ data }) => {
   const isSuccess = Boolean(data.success);
   const statusText = isSuccess ? "Success" : "Failed";
   const statusColorClass = isSuccess ? "status-green" : "status-red";
+  const statusIcon = isSuccess ? "✅" : "❌";
 
   const isRcBook = data.documentType === 'rc_book';
+  const docTypeName = isRcBook ? "RC Book" : "Driving Licence";
+  const ocrStatus = isSuccess ? "Completed" : "Failed";
+
   const extractedData = data.data || {};
 
   const fields = isRcBook
@@ -32,57 +36,70 @@ const VerificationResult = ({ data }) => {
         { label: "Expiry Date", value: extractedData.expiryDate },
       ];
 
+  // Calculate dynamic count of successfully extracted fields vs total fields
+  const totalFields = fields.length;
+  const validFieldsCount = fields.filter(f => f.value && f.value !== "Not Found").length;
+  const fieldsExtractedText = `${validFieldsCount} / ${totalFields}`;
+
   return (
     <div className="result-card">
+      {/* Top Header */}
       <div className="result-header">
         <h3>Verification Result</h3>
         <span className={`status-badge ${statusColorClass}`}>
-          {statusText}
+          {statusIcon} {statusText}
         </span>
       </div>
 
-      <div className="result-grid">
-        {fields.map((field, idx) => (
-          <div className="data-item" key={idx}>
-            <span className="label">{field.label}</span>
-            <span className={`value ${field.value === "Not Found" ? "value-not-found" : ""}`}>
-              {field.value || "Not Found"}
-            </span>
-          </div>
-        ))}
+      {/* Verification Dashboard Summary Card */}
+      <div className="dashboard-summary-card">
+        <div className="summary-item">
+          <span className="summary-label">Document Type</span>
+          <span className="summary-value">{docTypeName}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">OCR Status</span>
+          <span className="summary-value">{ocrStatus}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">Fields Extracted</span>
+          <span className="summary-value">{fieldsExtractedText}</span>
+        </div>
       </div>
 
-      <div className="ocr-collapsible-section" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+      {/* Extracted Fields Section */}
+      <div className="extracted-fields-section">
+        <h4 className="section-title">Extracted Details</h4>
+        <div className="result-grid">
+          {fields.map((field, idx) => (
+            <div className="data-item" key={idx}>
+              <span className="label">{field.label}</span>
+              <span className={`value ${field.value === "Not Found" ? "value-not-found" : ""}`}>
+                {field.value || "Not Found"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Collapsible Original OCR Text Section */}
+      <div className="ocr-collapsible-section">
         <button
           className="ocr-toggle-btn"
           onClick={() => setShowOCR(!showOCR)}
           type="button"
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--primary-color)',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 0'
-          }}
         >
-          {showOCR ? "▼ Hide OCR Text" : "▶ Show OCR Text"}
+          {showOCR ? "▼ Hide Original OCR Text" : "▶ Show Original OCR Text"}
         </button>
 
-        <div className={`ocr-content-wrapper ${showOCR ? "expanded" : "collapsed"}`}>
-          {showOCR && (
-            <div className="ocr-card">
-              <span className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>Original OCR Text</span>
-              <p className="ocr-text-body">
-                {data.ocrText || "Not Found"}
-              </p>
-            </div>
-          )}
-        </div>
+        {showOCR && (
+          <div className="ocr-card">
+            <span className="label" style={{ display: 'block', marginBottom: '0.5rem' }}>Original OCR Text</span>
+            <p className="ocr-text-body">
+              {data.ocrText || "Not Found"}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
