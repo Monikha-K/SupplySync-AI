@@ -5,6 +5,9 @@ from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from app.services.ocr_service import extract_text
 from app.services.parser_factory import get_parser
 from app.services.groq_service import verify_with_groq
+import uuid
+from app.services.database_service import DatabaseService
+from app.models.verification_model import VerificationReportModel, OCRInfo, AIVerification, AIAnalysis, AnalysisCheck
 
 logger = logging.getLogger(__name__)
 
@@ -99,11 +102,96 @@ async def upload_document(
     # Step 3: Groq AI Verification (graceful failure)
     ai_verification = verify_with_groq(doc_type_clean, parsed_data)
 
+    # Step 4: Save to MongoDB
+    verification_id = str(uuid.uuid4())
+    document_id = str(uuid.uuid4())
+    
+    try:
+        # Construct models carefully
+        ocr_info = OCRInfo(
+            engine="EasyOCR",
+            status="Success" if ocr_result.get("success") else "Failed",
+            processingTime=0.0, # Could be added to ocr_service
+            rawText=raw_ocr_text
+        )
+        
+        # Build AI Analysis object mapping
+        ai_analysis_dict = ai_verification.get("analysis", {})
+        def map_check(key):
+            if key in ai_analysis_dict:
+                return AnalysisCheck(**ai_analysis_dict[key])
+            return None
+            
+        ai_analysis = AIAnalysis(
+            mandatoryFields=map_check("mandatoryFields"),
+            documentValidity=map_check("documentValidity"),
+            fieldCompleteness=map_check("fieldCompleteness"),
+            dateConsistency=map_check("dateConsistency"),
+            formatValidation=map_check("formatValidation"),
+            ocrCompleteness=map_check("ocrCompleteness")
+        )
+        
+        ai_verif_model = AIVerification(
+            status=ai_verification.get("status", "Unavailable"),
+            overallTrustScore=ai_verification.get("overallTrustScore", 0),
+            riskLevel=ai_verification.get("riskLevel", "Unknown"),
+            documentQuality=ai_verification.get("documentQuality", "Unknown"),
+            verificationSummary=ai_verification.get("verificationSummary", ""),
+            analysis=ai_analysis,
+            recommendations=ai_verification.get("recommendations", [])
+        )
+
+        report = VerificationReportModel(
+            verificationId=verification_id,
+            documentId=document_id,
+            documentType=doc_type_clean,
+            ocr=ocr_info,
+            extractedFields=parsed_data,
+            aiVerification=ai_verif_model,
+            finalDecision=None
+        )
+        DatabaseService.insert_verification_report(report)
+    except Exception as e:
+        logger.error(f"Failed to save verification report to MongoDB: {e}")
+
     return {
         "success": True,
+        "verificationId": verification_id,
         "documentType": doc_type_clean,
         "data": parsed_data,
         "aiVerification": ai_verification,
         "ocrText": raw_ocr_text if raw_ocr_text else "Not Found",
         "message": "OCR Extraction Successful"
     }
+
+@router.get("/verifications")
+async def get_all_verifications():
+    """Returns all verification reports stored in MongoDB."""
+    try:
+        reports = DatabaseService.get_all_verifications()
+        return {
+            "success": True,
+            "count": len(reports),
+            "data": reports
+        }
+    except Exception as e:
+        logger.error(f"Error fetching verifications: {e}")
+        return {"success": False, "message": "Failed to fetch verifications"}
+
+@router.get("/verifications/{verificationId}")
+async def get_verification_by_id(verificationId: str):
+    """Returns a specific verification report."""
+    try:
+        report = DatabaseService.get_verification_by_id(verificationId)
+        if not report:
+            raise HTTPException(status_code=404, detail="Verification report not found")
+        return {
+            "success": True,
+            "data": report
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching verification {verificationId}: {e}")
+        return {"success": False, "message": "Failed to fetch verification"}
+

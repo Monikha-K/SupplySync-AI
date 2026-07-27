@@ -2,6 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
+from app.api.dataset import router as dataset_router
+from app.api.dashboard import router as dashboard_router
 
 # Initialize the FastAPI app
 app = FastAPI(
@@ -26,3 +28,6 @@ app.add_middleware(
 # Register the routes from the api/routes.py file
 # This mounts our endpoints (like GET / and GET /health) into the main application
 app.include_router(router)
+app.include_router(dataset_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+
