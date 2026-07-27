@@ -28,24 +28,24 @@ async def health_check():
 
 # Constants for file upload
 UPLOAD_DIR = "app/uploads"
-ALLOWED_CONTENT_TYPES = ["image/png", "image/jpeg", "image/jpg"]
+ALLOWED_CONTENT_TYPES = ["application/pdf", "image/png", "image/jpeg", "image/jpg"]
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 @router.post("/upload-document")
 async def upload_document(file: UploadFile = File(None)):
     """
-    Uploads an image document, runs EasyOCR to extract raw text, passes text to 
-    parser_service for regex rule-based extraction, and returns structured JSON response.
+    Uploads a PDF or Image document, runs EasyOCR (with page conversion for PDF),
+    passes text to parser_service for regex rule-based extraction, and returns structured JSON response.
     """
     # 1. Check if file is missing
     if not file:
         raise HTTPException(status_code=400, detail="File is missing")
 
-    # 2. Validate file type (Images only)
+    # 2. Validate file type (PDF, PNG, JPG, JPEG)
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=400, 
-            detail="Invalid file type. Only PNG, JPG, and JPEG images are allowed."
+            detail="Invalid file type. Only PDF, PNG, JPG, and JPEG files are allowed."
         )
 
     # 3. Read file content to validate size
@@ -71,21 +71,22 @@ async def upload_document(file: UploadFile = File(None)):
         logger.error(f"Failed to save uploaded file: {e}")
         raise HTTPException(status_code=500, detail="Failed to save uploaded file")
 
-    # 7. Step 1: Run EasyOCR
+    # 7. Step 1: Run EasyOCR (handles PDF page splitting automatically)
     ocr_result = extract_text(file_path)
     
     if not ocr_result.get("success"):
+        error_msg = ocr_result.get("message", "OCR Failed")
         return {
             "success": False,
+            "issuingAuthority": "Not Found",
             "documentType": "Not Found",
-            "driverName": "Not Found",
-            "licenseNumber": "Not Found",
+            "fullName": "Not Found",
+            "dateOfBirth": "Not Found",
             "issueDate": "Not Found",
             "expiryDate": "Not Found",
-            "vehicleClass": "Not Found",
-            "issuingAuthority": "Not Found",
-            "ocrText": "OCR Failed",
-            "message": "OCR Processing Failed"
+            "documentNumber": "Not Found",
+            "ocrText": error_msg,
+            "message": error_msg
         }
 
     raw_ocr_text = ocr_result.get("text", "")
@@ -96,13 +97,13 @@ async def upload_document(file: UploadFile = File(None)):
     # 9. Return structured JSON matching required schema
     return {
         "success": True,
+        "issuingAuthority": parsed_fields.get("issuingAuthority", "Not Found"),
         "documentType": parsed_fields.get("documentType", "Not Found"),
-        "driverName": parsed_fields.get("driverName", "Not Found"),
-        "licenseNumber": parsed_fields.get("licenseNumber", "Not Found"),
+        "fullName": parsed_fields.get("fullName", "Not Found"),
+        "dateOfBirth": parsed_fields.get("dateOfBirth", "Not Found"),
         "issueDate": parsed_fields.get("issueDate", "Not Found"),
         "expiryDate": parsed_fields.get("expiryDate", "Not Found"),
-        "vehicleClass": parsed_fields.get("vehicleClass", "Not Found"),
-        "issuingAuthority": parsed_fields.get("issuingAuthority", "Not Found"),
+        "documentNumber": parsed_fields.get("documentNumber", "Not Found"),
         "ocrText": raw_ocr_text if raw_ocr_text else "Not Found",
         "message": "OCR Extraction Successful"
     }

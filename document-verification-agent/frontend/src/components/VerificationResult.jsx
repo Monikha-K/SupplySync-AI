@@ -9,13 +9,13 @@ const VerificationResult = ({ data }) => {
   const statusColorClass = isSuccess ? "status-green" : "status-red";
 
   const fields = [
+    { label: "Issuing Authority", value: data.issuingAuthority },
     { label: "Document Type", value: data.documentType },
-    { label: "Driver Name", value: data.driverName },
-    { label: "Licence Number", value: data.licenseNumber },
+    { label: "Document Number", value: data.documentNumber },
+    { label: "Full Name", value: data.fullName },
+    { label: "Date of Birth", value: data.dateOfBirth },
     { label: "Issue Date", value: data.issueDate },
     { label: "Expiry Date", value: data.expiryDate },
-    { label: "Vehicle Class", value: data.vehicleClass },
-    { label: "Issuing Authority", value: data.issuingAuthority },
   ];
 
   return (
