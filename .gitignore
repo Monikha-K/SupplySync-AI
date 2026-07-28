@@ -1,0 +1,26 @@
+# Environment variable files (secrets)
+.env
+.env.local
+.env.*.local
+
+# Python cache & build files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Databases & local persistent storage
+*.db
+supplysync_risk.db
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE & temporary scratch files
+scratch/
+.idea/
+.vscode/
+*.log

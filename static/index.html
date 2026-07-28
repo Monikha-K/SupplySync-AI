@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupplySync AI - Autonomous Risk Prediction Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
+            --card-border: #334155;
+            --card-hover: rgba(51, 65, 85, 0.6);
+            --primary: #2563EB;
+            --primary-glow: rgba(37, 99, 235, 0.35);
+            --secondary: #06B6D4;
+            --accent: #22C55E;
+            --heading: #F8FAFC;
+            --body-text: #CBD5E1;
+            --text-main: #CBD5E1;
+            --text-muted: #94A3B8;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --error: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.12) 0%, transparent 40%);
+            padding-bottom: 50px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.85);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-status span {
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .threshold-badge {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Shipment List */
+        .shipment-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .shipment-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .shipment-item:hover, .shipment-item.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .shipment-id-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .shipment-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            color: #60a5fa;
+        }
+
+        .customer-name {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .route-info {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+        }
+
+        .tag.tag-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .tag.tag-warning { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .tag.tag-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        /* Simulation Controls */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            background: #0F172A;
+            border: 1px solid var(--card-border);
+            color: var(--heading);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            box-shadow: none;
+        }
+
+        /* Prediction Result Panel */
+        .result-container {
+            display: none;
+        }
+
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gauge-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 28px;
+            border: 5px solid var(--danger);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            color: #fff;
+            background: rgba(9, 13, 22, 0.9);
+        }
+
+        .score-circle.low { border-color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .score-circle.medium { border-color: var(--warning); box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        .score-circle.high { border-color: var(--danger); box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+
+        .score-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .gauge-details h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .gauge-details p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .action-banner {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-banner.high-risk {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .action-banner.monitored {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .info-box h4 {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .info-box ul {
+            list-style: none;
+        }
+
+        .info-box li {
+            font-size: 12px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #e5e7eb;
+        }
+
+        .info-box li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Customer Email Preview Card */
+        .email-preview {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .email-header {
+            font-size: 12px;
+            color: #93c5fd;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .email-subject {
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .email-body {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #d1d5db;
+            white-space: pre-line;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        /* History Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--card-border);
+            color: #e5e7eb;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pulse-loader {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            color: #93c5fd;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">
+                <h1>SupplySync AI</h1>
+                <p>Autonomous Risk Prediction Agent</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="threshold-badge">Threshold: <strong>70% Risk Score</strong></div>
+            <div class="badge-status">
+                <span></span> Autonomous Agent Active
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="grid-layout">
+            
+            <!-- Left Column: Active Shipments & Simulation Control -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                
+                <!-- Shipment Selector Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            📦 Active Logistics Shipments
+                        </div>
+                        <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="runAllPredictions()">⚡ Run All Agent Predictions</button>
+                    </div>
+                    <div class="shipment-cards" id="shipmentList">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- Simulation & Parameter Customizer -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            ⚙️ Real-time Scenario Simulator
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Traffic Status</label>
+                            <select id="simTraffic">
+                                <option value="Light">Light Traffic</option>
+                                <option value="Moderate">Moderate Traffic</option>
+                                <option value="Heavy">Heavy Traffic / Gridlock</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Weather Condition</label>
+                            <select id="simWeather">
+                                <option value="Clear">Clear Skies</option>
+                                <option value="Fog">Heavy Fog</option>
+                                <option value="Rain">Monsoon Rain</option>
+                                <option value="Storm">Severe Thunderstorm</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Health</label>
+                            <select id="simVehicle">
+                                <option value="Healthy">Healthy / Normal</option>
+                                <option value="Tire Pressure Low">Tire Pressure Low</option>
+                                <option value="Engine Warning">Engine Overheating Alert</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Driver Status</label>
+                            <select id="simDriver">
+                                <option value="Available">Available / Fresh</option>
+                                <option value="Rest Required">Rest Break Required</option>
+                                <option value="Overtime">Overtime Limit Exceeded</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" id="btnPredict" onclick="runSinglePrediction()">
+                        🧠 Trigger Gemini Risk Reasoning Agent
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right Column: AI Reasoning Output & Email Action -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        🤖 Autonomous AI Prediction Output
+                    </div>
+                    <span id="timestampBadge" style="font-size: 11px; color: var(--text-muted); font-family: monospace;">Waiting for execution...</span>
+                </div>
+
+                <!-- Loading State -->
+                <div class="pulse-loader" id="loader">
+                    <div class="spinner"></div>
+                    <span>Gemini AI Agent is analyzing multi-factor logistics risk...</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                    <div style="font-size: 40px; margin-bottom: 12px;">📊</div>
+                    <p style="font-size: 14px; font-weight: 500;">Select a shipment and click "Trigger Gemini Risk Reasoning Agent" to begin autonomous analysis.</p>
+                </div>
+
+                <!-- Active Prediction Result -->
+                <div class="result-container" id="resultPanel">
+                    
+                    <div class="gauge-section">
+                        <div class="gauge-details">
+                            <h3 id="resLevel">High Risk Detected</h3>
+                            <p id="resIssue">Predicted Issue: Delivery Delay</p>
+                            <p id="resDelay" style="color: #60a5fa; font-weight: 600; margin-top: 4px;">Expected Delay: 45 minutes</p>
+                        </div>
+                        <div class="score-circle high" id="resScoreCircle">
+                            <span id="resScore">87</span>
+                            <span class="score-label">Risk Score</span>
+                        </div>
+                    </div>
+
+                    <div class="action-banner high-risk" id="resActionBanner">
+                        <span style="font-size: 18px;">⚡</span>
+                        <span id="resActionText">Autonomous Trigger: Customer Communication Agent Invoked (Risk Score >= 70%)</span>
+                    </div>
+
+                    <div class="details-grid">
+                        <div class="info-box">
+                            <h4>Root Cause Analysis</h4>
+                            <ul id="resReasons"></ul>
+                        </div>
+                        <div class="info-box">
+                            <h4>Recommended Corrective Actions</h4>
+                            <ul id="resActions"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Customer Email Preview (Rendered if high risk triggered) -->
+                    <div class="email-preview" id="emailCard" style="display: none;">
+                        <div class="email-header">
+                            📬 <strong>Customer Communication Agent Output</strong> • Status: <span id="emailStatus" style="color: #34d399; font-weight: 600;">Dispatched</span>
+                        </div>
+                        <div style="font-size: 12px; margin-bottom: 6px; color: var(--text-muted);">
+                            <strong>To:</strong> <span id="emailRecipient">rahul@example.com</span>
+                        </div>
+                        <div class="email-subject" id="emailSubject">Subject: Shipment Delay Update</div>
+                        <div class="email-body" id="emailBody"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Dynamic Product Feasibility & Auto-Dispatch Agent Card -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <div class="card-title">
+                    🚀 Dynamic Route Feasibility & Product Auto-Dispatch Agent
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" style="width: auto; padding: 6px 10px; font-size: 11px;" onclick="prefillFeasibility('electronics')">⚡ Electronics</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 6px 10px; font-size: 11px;" onclick="prefillFeasibility('glassware')">⚡ Fragile Glassware</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 6px 10px; font-size: 11px;" onclick="prefillFeasibility('medical')">⚡ Medical Equipment</button>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+                Enter product & route details below. The Autonomous Agent will auto-detect weather and traffic along the route, evaluate transport feasibility, and automatically dispatch a status email to the customer.
+            </p>
+
+            <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>Source City / Origin</label>
+                    <input type="text" id="feasSource" value="Chicago, IL" placeholder="e.g. Chicago, IL">
+                </div>
+                <div class="form-group">
+                    <label>Destination City</label>
+                    <input type="text" id="feasDest" value="Dallas, TX" placeholder="e.g. Dallas, TX">
+                </div>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="feasProductName" value="OLED Display Panels" placeholder="e.g. OLED Display Panels">
+                </div>
+                <div class="form-group">
+                    <label>Product Category</label>
+                    <select id="feasCategory">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Medical">Medical Devices</option>
+                        <option value="Glassware">Glassware / Fragile</option>
+                        <option value="Perishable">Perishable Goods</option>
+                        <option value="General">General Freight</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="feasWeight" value="45" min="0.1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Quantity (Units)</label>
+                    <input type="number" id="feasQty" value="120" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Fragile Handling</label>
+                    <select id="feasFragile">
+                        <option value="false">No (Standard Freight)</option>
+                        <option value="true">Yes (Air-Cushioned / Fragile)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="feasCustName" value="Rahul Sharma">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Customer Email Address</label>
+                    <input type="email" id="feasCustEmail" value="raghu402554@gmail.com">
+                </div>
+            </div>
+
+            <button class="btn" id="btnFeasibility" onclick="runFeasibilityCheck()" style="background: linear-gradient(135deg, var(--secondary), var(--primary)); font-size: 15px; padding: 14px;">
+                🌐 Auto-Inspect Weather/Traffic & Dispatch Customer Email
+            </button>
+
+            <!-- Loading Spinner -->
+            <div class="pulse-loader" id="feasLoader" style="margin-top: 20px;">
+                <div class="spinner"></div>
+                <span>Autonomous Agent is querying live weather, traffic, and evaluating product route feasibility...</span>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="result-container" id="feasResultPanel" style="margin-top: 24px;">
+                
+                <div class="gauge-section">
+                    <div class="gauge-details">
+                        <h3 id="feasStatusText">Feasible & Optimal</h3>
+                        <p id="feasRouteInfo">Chicago, IL ➔ Dallas, TX (520 km)</p>
+                        <p id="feasTransitInfo" style="color: #60a5fa; font-weight: 600; margin-top: 4px;">Estimated Duration: 8.5 Hours</p>
+                    </div>
+                    <div class="score-circle low" id="feasScoreCircle">
+                        <span id="feasScore">25</span>
+                        <span class="score-label">Risk Score</span>
+                    </div>
+                </div>
+
+                <div class="action-banner monitored" id="feasActionBanner">
+                    <span style="font-size: 18px;">⚡</span>
+                    <span id="feasActionText">Autonomous Action: Feasibility Checked & Dispatch Email Sent to Customer</span>
+                </div>
+
+                <div class="details-grid">
+                    <div class="info-box">
+                        <h4>Auto-Detected Environment Metrics</h4>
+                        <ul>
+                            <li id="feasWeatherText">🌦️ Source & Destination Weather</li>
+                            <li id="feasTrafficText">🚦 Route Traffic Status</li>
+                            <li id="feasProductSpecs">📦 Product Specs Evaluated</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h4>AI Recommendations & Mitigation</h4>
+                        <ul id="feasActions"></ul>
+                    </div>
+                </div>
+
+                <!-- Customer Email Preview -->
+                <div class="email-preview" id="feasEmailCard" style="display: none;">
+                    <div class="email-header">
+                        📬 <strong>Autonomous Feasibility Dispatch Email</strong> • Status: <span id="feasEmailStatus" style="color: #34d399; font-weight: 600;">Dispatched</span>
+                    </div>
+                    <div style="font-size: 12px; margin-bottom: 6px; color: var(--text-muted);">
+                        <strong>To:</strong> <span id="feasEmailRecipient"></span>
+                    </div>
+                    <div class="email-subject" id="feasEmailSubject"></div>
+                    <div class="email-body" id="feasEmailBody"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    📜 SQLite Prediction History & Autonomous Action Audit Log
+                </div>
+                <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="loadHistory()">🔄 Refresh History</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Shipment ID</th>
+                            <th>Risk Score</th>
+                            <th>Level</th>
+                            <th>Expected Delay</th>
+                            <th>Action Executed</th>
+                            <th>Customer Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No predictions logged yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedShipmentId = null;
+        let shipmentsMap = {};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadShipments();
+            loadHistory();
+        });
+
+        async function loadShipments() {
+            try {
+                const res = await fetch("/api/shipments");
+                const shipments = await res.json();
+                const container = document.getElementById("shipmentList");
+                container.innerHTML = "";
+
+                shipments.forEach((s, idx) => {
+                    shipmentsMap[s.shipment_id] = s;
+                    if (idx === 0 && !selectedShipmentId) {
+                        selectedShipmentId = s.shipment_id;
+                    }
+
+                    const isSelected = s.shipment_id === selectedShipmentId;
+                    const card = document.createElement("div");
+                    card.className = `shipment-item ${isSelected ? 'selected' : ''}`;
+                    card.onclick = () => selectShipment(s.shipment_id);
+
+                    let trafficTagClass = s.traffic === 'Heavy' ? 'tag-danger' : (s.traffic === 'Moderate' ? 'tag-warning' : 'tag-success');
+                    let weatherTagClass = ['Rain', 'Storm', 'Fog'].includes(s.weather) ? 'tag-danger' : 'tag-success';
+
+                    card.innerHTML = `
+                        <div class="shipment-id-row">
+                            <span class="shipment-id">${s.shipment_id}</span>
+                            <span class="customer-name">${s.customer_name}</span>
+                        </div>
+                        <div class="route-info">${s.source} ➔ ${s.destination} (${s.distance_remaining} km)</div>
+                        <div class="tags-row">
+                            <span class="tag ${trafficTagClass}">🚦 ${s.traffic}</span>
+                            <span class="tag ${weatherTagClass}">🌧️ ${s.weather}</span>
+                            <span class="tag">🔧 ${s.vehicle_health}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                if (selectedShipmentId) {
+                    populateSimForm(shipmentsMap[selectedShipmentId]);
+                }
+            } catch (err) {
+                console.error("Failed to load shipments:", err);
+            }
+        }
+
+        function selectShipment(id) {
+            selectedShipmentId = id;
+            document.querySelectorAll(".shipment-item").forEach(el => el.classList.remove("selected"));
+            loadShipments();
+        }
+
+        function populateSimForm(s) {
+            if (!s) return;
+            document.getElementById("simTraffic").value = s.traffic || "Light";
+            document.getElementById("simWeather").value = s.weather || "Clear";
+            document.getElementById("simVehicle").value = s.vehicle_health || "Healthy";
+            document.getElementById("simDriver").value = s.driver_status || "Available";
+        }
+
+        async function runSinglePrediction() {
+            if (!selectedShipmentId) return;
+
+            const loader = document.getElementById("loader");
+            const emptyState = document.getElementById("emptyState");
+            const resultPanel = document.getElementById("resultPanel");
+
+            emptyState.style.display = "none";
+            resultPanel.classList.remove("active");
+            loader.style.display = "flex";
+
+            // First update conditions in backend
+            const updatePayload = {
+                traffic: document.getElementById("simTraffic").value,
+                weather: document.getElementById("simWeather").value,
+                vehicle_health: document.getElementById("simVehicle").value,
+                driver_status: document.getElementById("simDriver").value
+            };
+
+            try {
+                await fetch(`/api/shipments/${selectedShipmentId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatePayload)
+                });
+
+                // Then trigger prediction
+                const res = await fetch(`/api/predict/${selectedShipmentId}`, { method: "POST" });
+                const pred = await res.json();
+
+                loader.style.display = "none";
+                displayPredictionResult(pred);
+                loadShipments();
+                loadHistory();
+            } catch (err) {
+                loader.style.display = "none";
+                alert("Error running risk prediction: " + err);
+            }
+        }
+
+        async function runAllPredictions() {
+            const loader = document.getElementById("loader");
+            loader.style.display = "flex";
+            try {
+                await fetch("/api/predict/all", { method: "POST" });
+                loader.style.display = "none";
+                loadShipments();
+                loadHistory();
+                if (selectedShipmentId) {
+                    const res = await fetch(`/api/predictions/${selectedShipmentId}`);
+                    const history = await res.json();
+                    if (history && history.length > 0) {
+                        displayPredictionResult(history[0]);
+                    }
+                }
+            } catch (err) {
+                loader.style.display = "none";
+                alert("Error running all predictions: " + err);
+            }
+        }
+
+        function displayPredictionResult(pred) {
+            document.getElementById("emptyState").style.display = "none";
+            const panel = document.getElementById("resultPanel");
+            panel.classList.add("active");
+
+            document.getElementById("timestampBadge").innerText = new Date(pred.timestamp).toLocaleTimeString();
+            document.getElementById("resLevel").innerText = `${pred.risk_level} Risk Level`;
+            document.getElementById("resIssue").innerText = `Predicted Issue: ${pred.predicted_issue}`;
+            document.getElementById("resDelay").innerText = `Expected Delay: ${pred.expected_delay}`;
+
+            // Score Circle
+            const circle = document.getElementById("resScoreCircle");
+            document.getElementById("resScore").innerText = pred.risk_score;
+            circle.className = `score-circle ${pred.risk_level.toLowerCase()}`;
+
+            // Action Banner
+            const banner = document.getElementById("resActionBanner");
+            const actionText = document.getElementById("resActionText");
+
+            if (pred.risk_score >= 70) {
+                banner.className = "action-banner high-risk";
+                actionText.innerHTML = `⚡ <strong>High Risk Triggered (Score ${pred.risk_score} >= 70%):</strong> Customer Communication Agent Autonomously Executed!`;
+            } else {
+                banner.className = "action-banner monitored";
+                actionText.innerHTML = `🛡️ <strong>Low/Medium Risk (Score ${pred.risk_score} < 70%):</strong> Shipment Monitored - No Customer Action Required.`;
+            }
+
+            // Reasons
+            const reasonsUl = document.getElementById("resReasons");
+            reasonsUl.innerHTML = "";
+            (pred.reason || []).forEach(r => {
+                const li = document.createElement("li");
+                li.innerText = r;
+                reasonsUl.appendChild(li);
+            });
+
+            // Actions
+            const actionsUl = document.getElementById("resActions");
+            actionsUl.innerHTML = "";
+            (pred.recommended_action || []).forEach(a => {
+                const li = document.createElement("li");
+                li.innerText = a;
+                actionsUl.appendChild(li);
+            });
+
+            // Email Preview
+            const emailCard = document.getElementById("emailCard");
+            if (pred.customer_notified && pred.email_content) {
+                emailCard.style.display = "block";
+                document.getElementById("emailStatus").innerText = pred.email_content.status || "Dispatched";
+                document.getElementById("emailRecipient").innerText = pred.email_content.recipient || "";
+                document.getElementById("emailSubject").innerText = pred.email_content.subject || "";
+                document.getElementById("emailBody").innerText = pred.email_content.body || "";
+            } else {
+                emailCard.style.display = "none";
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch("/api/predictions?limit=20");
+                const logs = await res.json();
+                const tbody = document.getElementById("historyTableBody");
+                tbody.innerHTML = "";
+
+                if (!logs || logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No predictions logged yet.</td></tr>`;
+                    return;
+                }
+
+                logs.forEach(log => {
+                    const tr = document.createElement("tr");
+                    const timeStr = new Date(log.timestamp).toLocaleTimeString();
+                    const isHigh = log.risk_score >= 70;
+                    const badgeClass = isHigh ? 'tag-danger' : (log.risk_score >= 40 ? 'tag-warning' : 'tag-success');
+
+                    tr.innerHTML = `
+                        <td style="font-family: monospace;">${timeStr}</td>
+                        <td style="font-family: monospace; font-weight: 700; color: #60a5fa;">${log.shipment_id}</td>
+                        <td><span class="tag ${badgeClass}" style="font-weight: 700;">${log.risk_score}</span></td>
+                        <td><strong>${log.risk_level}</strong></td>
+                        <td>${log.expected_delay}</td>
+                        <td style="font-size: 12px;">${log.action_taken}</td>
+                        <td>${log.customer_notified ? '<span class="tag tag-success">✉️ Sent</span>' : '<span class="tag">None</span>'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error("Failed to load prediction history:", err);
+            }
+        }
+
+        function prefillFeasibility(preset) {
+            if (preset === 'electronics') {
+                document.getElementById('feasSource').value = 'Chicago, IL';
+                document.getElementById('feasDest').value = 'Dallas, TX';
+                document.getElementById('feasProductName').value = 'OLED Display Panels';
+                document.getElementById('feasCategory').value = 'Electronics';
+                document.getElementById('feasWeight').value = '45';
+                document.getElementById('feasQty').value = '120';
+                document.getElementById('feasFragile').value = 'true';
+                document.getElementById('feasCustName').value = 'Rahul Sharma';
+                document.getElementById('feasCustEmail').value = 'raghu402554@gmail.com';
+            } else if (preset === 'glassware') {
+                document.getElementById('feasSource').value = 'New York, NY';
+                document.getElementById('feasDest').value = 'Miami, FL';
+                document.getElementById('feasProductName').value = 'Precision Optical Lenses';
+                document.getElementById('feasCategory').value = 'Glassware';
+                document.getElementById('feasWeight').value = '18';
+                document.getElementById('feasQty').value = '50';
+                document.getElementById('feasFragile').value = 'true';
+                document.getElementById('feasCustName').value = 'Sophia Chen';
+                document.getElementById('feasCustEmail').value = 'raghu402554@gmail.com';
+            } else if (preset === 'medical') {
+                document.getElementById('feasSource').value = 'Seattle, WA';
+                document.getElementById('feasDest').value = 'Los Angeles, CA';
+                document.getElementById('feasProductName').value = 'Automated Diagnostic Ventilators';
+                document.getElementById('feasCategory').value = 'Medical';
+                document.getElementById('feasWeight').value = '150';
+                document.getElementById('feasQty').value = '10';
+                document.getElementById('feasFragile').value = 'true';
+                document.getElementById('feasCustName').value = 'Dr. Marcus Vance';
+                document.getElementById('feasCustEmail').value = 'raghu402554@gmail.com';
+            }
+        }
+
+        async function runFeasibilityCheck() {
+            const loader = document.getElementById("feasLoader");
+            const resultPanel = document.getElementById("feasResultPanel");
+            const btn = document.getElementById("btnFeasibility");
+
+            loader.style.display = "flex";
+            resultPanel.classList.remove("active");
+            btn.disabled = true;
+
+            const payload = {
+                source: document.getElementById("feasSource").value,
+                destination: document.getElementById("feasDest").value,
+                product_name: document.getElementById("feasProductName").value,
+                product_category: document.getElementById("feasCategory").value,
+                weight_kg: parseFloat(document.getElementById("feasWeight").value) || 1.0,
+                quantity: parseInt(document.getElementById("feasQty").value) || 1,
+                is_fragile: document.getElementById("feasFragile").value === "true",
+                customer_name: document.getElementById("feasCustName").value,
+                customer_email: document.getElementById("feasCustEmail").value
+            };
+
+            try {
+                const res = await fetch("/api/feasibility-check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                loader.style.display = "none";
+                btn.disabled = false;
+
+                if (!res.ok) {
+                    alert("Feasibility evaluation failed: " + (data.detail || "Unknown error"));
+                    return;
+                }
+
+                displayFeasibilityResult(data);
+                loadShipments();
+                loadHistory();
+            } catch (err) {
+                loader.style.display = "none";
+                btn.disabled = false;
+                alert("Network error running feasibility check: " + err);
+            }
+        }
+
+        function displayFeasibilityResult(data) {
+            const panel = document.getElementById("feasResultPanel");
+            panel.classList.add("active");
+
+            document.getElementById("feasStatusText").innerText = data.feasibility_status;
+            document.getElementById("feasRouteInfo").innerText = `${data.product_summary.product_name} (${data.product_summary.weight_kg} kg) • ${data.weather_summary.summary || 'Route Inspected'}`;
+            document.getElementById("feasTransitInfo").innerText = `Distance: ${data.estimated_distance_km} km | Estimated Transit: ${data.estimated_transit_hours} Hours`;
+
+            const scoreCircle = document.getElementById("feasScoreCircle");
+            document.getElementById("feasScore").innerText = data.risk_score;
+            scoreCircle.className = `score-circle ${data.risk_level.toLowerCase()}`;
+
+            const actionBanner = document.getElementById("feasActionBanner");
+            const actionText = document.getElementById("feasActionText");
+
+            if (data.risk_score >= 70) {
+                actionBanner.className = "action-banner high-risk";
+            } else {
+                actionBanner.className = "action-banner monitored";
+            }
+            actionText.innerHTML = `⚡ <strong>Autonomous Action Executed:</strong> ${data.action_taken}`;
+
+            // Details
+            document.getElementById("feasWeatherText").innerHTML = `🌦️ <strong>Weather:</strong> ${data.weather_summary.summary || 'Clear'}`;
+            document.getElementById("feasTrafficText").innerHTML = `🚦 <strong>Traffic:</strong> ${data.traffic_summary.traffic_status || 'Light'} (Slowdown: ${data.traffic_summary.slowdown_multiplier || 1.0}x)`;
+            document.getElementById("feasProductSpecs").innerHTML = `📦 <strong>Product:</strong> ${data.product_summary.product_name} (${data.product_summary.quantity} units, ${data.product_summary.weight_kg} kg, Fragile: ${data.product_summary.is_fragile ? 'Yes' : 'No'})`;
+
+            const actionsUl = document.getElementById("feasActions");
+            actionsUl.innerHTML = "";
+            (data.recommended_actions || []).forEach(act => {
+                const li = document.createElement("li");
+                li.innerText = act;
+                actionsUl.appendChild(li);
+            });
+
+            // Email Preview
+            const emailCard = document.getElementById("feasEmailCard");
+            if (data.customer_notified && data.email_content) {
+                emailCard.style.display = "block";
+                document.getElementById("feasEmailStatus").innerText = data.email_content.status || "Dispatched";
+                document.getElementById("feasEmailRecipient").innerText = data.email_content.recipient || data.product_summary.customer_email || "";
+                document.getElementById("feasEmailSubject").innerText = data.email_content.subject || "";
+                document.getElementById("feasEmailBody").innerText = data.email_content.body || "";
+            } else {
+                emailCard.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

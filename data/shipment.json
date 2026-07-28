@@ -1,0 +1,62 @@
+[
+  {
+    "shipment_id": "SHIP001",
+    "customer_name": "Raghu",
+    "customer_email": "raghu402554@gmail.com",
+    "source": "Chennai",
+    "destination": "Bangalore",
+    "current_location": "Vellore",
+    "distance_remaining": 180.0,
+    "expected_delivery_time": "6:00 PM",
+    "traffic": "Heavy",
+    "weather": "Rain",
+    "vehicle_health": "Healthy",
+    "driver_status": "Available",
+    "historical_delay_info": "Route historically experiences +30m delay during monsoon rain"
+  },
+  {
+    "shipment_id": "SHIP002",
+    "customer_name": "Parameshwaran",
+    "customer_email": "paramesh006waran@gmail.com",
+    "source": "Mumbai",
+    "destination": "Pune",
+    "current_location": "Lonavala",
+    "distance_remaining": 45.0,
+    "expected_delivery_time": "4:30 PM",
+    "traffic": "Heavy",
+    "weather": "Rain",
+    "vehicle_health": "Healthy",
+    "driver_status": "Available",
+    "historical_delay_info": "On-time average 96%"
+  },
+  {
+    "shipment_id": "SHIP003",
+    "customer_name": "Vikram Patel",
+    "customer_email": "raghu402554@gmail.com",
+    "source": "Delhi",
+    "destination": "Jaipur",
+    "current_location": "Gurugram",
+    "distance_remaining": 210.0,
+    "expected_delivery_time": "7:15 PM",
+    "traffic": "Moderate",
+    "weather": "Fog",
+    "vehicle_health": "Healthy",
+    "driver_status": "Available",
+    "historical_delay_info": "Winter fog reduces highway speed by ~15%"
+  },
+  {
+    "shipment_id": "SHIP004",
+    "customer_name": "Siddharth Roy",
+    "customer_email": "raghu402554@gmail.com",
+    "source": "Kolkata",
+    "destination": "Bhubaneswar",
+    "current_location": "Kharagpur",
+    "distance_remaining": 290.0,
+    "expected_delivery_time": "8:30 PM",
+    "traffic": "Heavy",
+    "weather": "Storm",
+    "vehicle_health": "Engine Warning",
+    "driver_status": "Rest Required",
+    "historical_delay_info": "High delay probability (+90 mins) in severe storms"
+  }
+]
