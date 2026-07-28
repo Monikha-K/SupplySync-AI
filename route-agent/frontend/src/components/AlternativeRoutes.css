@@ -1,0 +1,57 @@
+.alternative-card{
+
+    width:85%;
+
+    margin:35px auto;
+
+    background:rgba(17,24,39,.75);
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    padding:35px;
+
+    backdrop-filter:blur(15px);
+}
+
+.alternative-card h2{
+
+    color:#38bdf8;
+
+    margin-bottom:25px;
+
+    font-size:34px;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+}
+
+th{
+
+    background:#1e293b;
+
+    color:#38bdf8;
+
+    padding:18px;
+
+    text-align:left;
+}
+
+td{
+
+    padding:18px;
+
+    color:white;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+tr:hover{
+
+    background:#111827;
+}

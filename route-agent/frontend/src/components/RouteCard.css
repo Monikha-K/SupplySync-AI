@@ -1,0 +1,60 @@
+.route-card{
+
+    width:85%;
+    margin:40px auto;
+
+    background:rgba(17,24,39,.75);
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,.1);
+
+    backdrop-filter:blur(15px);
+
+    padding:35px;
+}
+
+.route-card h2{
+
+    color:#38bdf8;
+
+    margin-bottom:30px;
+
+    font-size:34px;
+}
+
+.route-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:25px;
+}
+
+.route-grid div{
+
+    background:#111827;
+
+    padding:25px;
+
+    border-radius:14px;
+
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.route-grid h4{
+
+    color:#94a3b8;
+
+    margin-bottom:10px;
+}
+
+.route-grid p{
+
+    color:white;
+
+    font-size:22px;
+
+    font-weight:600;
+}

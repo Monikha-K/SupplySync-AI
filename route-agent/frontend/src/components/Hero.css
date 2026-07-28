@@ -1,0 +1,29 @@
+.hero{
+    text-align:center;
+    margin-top:70px;
+    margin-bottom:60px;
+}
+
+.hero h1{
+
+    font-size:68px;
+    font-weight:700;
+
+    color:white;
+
+    margin-bottom:50px;
+}
+
+.hero h1 span{
+
+    color:#38bdf8;
+}
+
+.hero p{
+
+    color:#cbd5e1;
+
+    font-size:28px;
+
+    font-weight:400;
+}
