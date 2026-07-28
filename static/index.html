@@ -580,7 +580,7 @@
                         <div class="card-title">
                             📦 Active Logistics Shipments
                         </div>
-                        <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="runAllPredictions()">⚡ Run All Agent Predictions</button>
+                        <button class="btn btn-secondary" id="btnRunAll" style="width: auto; padding: 6px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="runAllPredictions()">⚡ Run All Agent Predictions</button>
                     </div>
                     <div class="shipment-cards" id="shipmentList">
                         <!-- Loaded dynamically via JS -->
@@ -643,6 +643,30 @@
                         🤖 Autonomous AI Prediction Output
                     </div>
                     <span id="timestampBadge" style="font-size: 11px; color: var(--text-muted); font-family: monospace;">Waiting for execution...</span>
+                </div>
+
+                <!-- Batch Analysis Summary Container -->
+                <div id="batchSummaryContainer" style="display: none; margin-bottom: 20px; background: rgba(37, 99, 235, 0.12); border: 1px solid var(--primary); border-radius: 12px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="color: var(--heading); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                            ⚡ Batch AI Risk Prediction Summary
+                        </h4>
+                        <span id="batchCountBadge" style="font-size: 11px; background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 12px; font-weight: 600;">4 Shipments Evaluated</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid var(--card-border);">
+                            <div style="font-size: 11px; color: var(--text-muted);">High Risk Triggered</div>
+                            <div id="batchHighRiskCount" style="font-size: 20px; font-weight: 800; color: var(--danger);">0</div>
+                        </div>
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid var(--card-border);">
+                            <div style="font-size: 11px; color: var(--text-muted);">Emails Dispatched</div>
+                            <div id="batchEmailsCount" style="font-size: 20px; font-weight: 800; color: var(--success);">0</div>
+                        </div>
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid var(--card-border);">
+                            <div style="font-size: 11px; color: var(--text-muted);">Monitored Safe</div>
+                            <div id="batchSafeCount" style="font-size: 20px; font-weight: 800; color: var(--secondary);">0</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Loading State -->
@@ -972,21 +996,71 @@
 
         async function runAllPredictions() {
             const loader = document.getElementById("loader");
+            const emptyState = document.getElementById("emptyState");
+            const resultPanel = document.getElementById("resultPanel");
+            const batchContainer = document.getElementById("batchSummaryContainer");
+            const btn = document.getElementById("btnRunAll");
+
+            emptyState.style.display = "none";
+            resultPanel.classList.remove("active");
+            batchContainer.style.display = "none";
             loader.style.display = "flex";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = "⏳ Processing All Agent Predictions...";
+            }
+
             try {
-                await fetch("/api/predict/all", { method: "POST" });
+                const res = await fetch("/api/predict/all", { method: "POST" });
+                const predictions = await res.json();
+
                 loader.style.display = "none";
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = "⚡ Run All Agent Predictions";
+                }
+
+                if (!res.ok) {
+                    alert("Error running batch predictions: " + (predictions.detail || "Unknown error"));
+                    return;
+                }
+
+                // Compute Batch Summary Statistics
+                let highRiskCount = 0;
+                let emailsCount = 0;
+                let safeCount = 0;
+
+                predictions.forEach(p => {
+                    if (p.risk_score >= 70) {
+                        highRiskCount++;
+                    } else {
+                        safeCount++;
+                    }
+                    if (p.customer_notified) {
+                        emailsCount++;
+                    }
+                });
+
+                document.getElementById("batchCountBadge").innerText = `${predictions.length} Active Shipments Evaluated`;
+                document.getElementById("batchHighRiskCount").innerText = highRiskCount;
+                document.getElementById("batchEmailsCount").innerText = emailsCount;
+                document.getElementById("batchSafeCount").innerText = safeCount;
+                batchContainer.style.display = "block";
+
+                // Display selected shipment or highest risk prediction result
+                let displayPred = predictions.find(p => p.shipment_id === selectedShipmentId) || predictions[0];
+                if (displayPred) {
+                    displayPredictionResult(displayPred);
+                }
+
                 loadShipments();
                 loadHistory();
-                if (selectedShipmentId) {
-                    const res = await fetch(`/api/predictions/${selectedShipmentId}`);
-                    const history = await res.json();
-                    if (history && history.length > 0) {
-                        displayPredictionResult(history[0]);
-                    }
-                }
             } catch (err) {
                 loader.style.display = "none";
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = "⚡ Run All Agent Predictions";
+                }
                 alert("Error running all predictions: " + err);
             }
         }
