@@ -1,4 +1,12 @@
-// Placeholder for RecommendedBadge component
-export default function RecommendedBadge() {
-  return null;
-}
+import React from 'react';
+
+const RecommendedBadge = () => {
+  return (
+    <div className="recommended-badge">
+      <span>⭐</span>
+      <span>Top Recommended</span>
+    </div>
+  );
+};
+
+export default RecommendedBadge;
