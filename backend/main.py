@@ -40,13 +40,13 @@ app.add_middleware(
 # Register REST API routes
 app.include_router(api_router)
 
-# Mount Static Files for Dashboard UI
+# Mount Static Assets & React Frontend UI
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-if not STATIC_DIR.exists():
-    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+ASSETS_DIR = FRONTEND_DIST / "assets"
 
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
 
 @app.on_event("startup")
@@ -67,11 +67,11 @@ def on_startup():
 
 @app.get("/")
 def read_root():
-    """Serve the SupplySync AI Interactive Dashboard UI."""
-    index_file = STATIC_DIR / "index.html"
+    """Serve the SupplySync AI React Dashboard UI."""
+    index_file = FRONTEND_DIST / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file))
-    return {"message": "SupplySync AI Agent API Running. Access /docs for REST API documentation."}
+    return {"message": "SupplySync AI Agent Backend API Running. Access /docs for REST API documentation."}
 
 
 if __name__ == "__main__":
