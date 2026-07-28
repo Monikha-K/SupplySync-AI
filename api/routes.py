@@ -42,20 +42,6 @@ def predict_shipment_risk(shipment: ShipmentData):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/predict/{shipment_id}", response_model=RiskPrediction)
-def predict_by_id(shipment_id: str):
-    """
-    Run risk prediction for a specific shipment ID registered in SQLite.
-    """
-    shipment_dict = db_service.get_shipment(shipment_id)
-    if not shipment_dict:
-        raise HTTPException(status_code=404, detail=f"Shipment {shipment_id} not found.")
-
-    shipment = ShipmentData(**shipment_dict)
-    prediction = risk_prediction_agent.predict_and_act(shipment)
-    return prediction
-
-
 @router.post("/predict/all", response_model=List[RiskPrediction])
 def predict_all_shipments():
     """
@@ -68,6 +54,20 @@ def predict_all_shipments():
         pred = risk_prediction_agent.predict_and_act(shipment)
         predictions.append(pred)
     return predictions
+
+
+@router.post("/predict/{shipment_id}", response_model=RiskPrediction)
+def predict_by_id(shipment_id: str):
+    """
+    Run risk prediction for a specific shipment ID registered in SQLite.
+    """
+    shipment_dict = db_service.get_shipment(shipment_id)
+    if not shipment_dict:
+        raise HTTPException(status_code=404, detail=f"Shipment {shipment_id} not found.")
+
+    shipment = ShipmentData(**shipment_dict)
+    prediction = risk_prediction_agent.predict_and_act(shipment)
+    return prediction
 
 
 @router.get("/shipments", response_model=List[ShipmentData])
@@ -112,4 +112,15 @@ def get_prediction_history(shipment_id: Optional[str] = Query(None), limit: int 
     Retrieve stored prediction history logs from SQLite database.
     """
     history = db_service.get_prediction_history(shipment_id=shipment_id, limit=limit)
+    return history
+
+
+@router.get("/predictions/{shipment_id}")
+def get_prediction_history_by_id(shipment_id: str, limit: int = Query(50)):
+    """
+    Retrieve stored prediction history logs for a specific shipment ID from SQLite database.
+    """
+    history = db_service.get_prediction_history(shipment_id=shipment_id, limit=limit)
+    if not history:
+        return []
     return history
