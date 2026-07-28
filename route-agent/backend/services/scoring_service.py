@@ -1,32 +1,38 @@
-import random
-
-
 def score_routes(routes, priority):
 
     ranked_routes = []
 
     for route in routes:
 
-        traffic = random.choice([
-            "Low",
-            "Medium",
-            "High"
-        ])
+        # Traffic based on travel time
+        if route["duration_hr"] <= 6:
+            traffic = "Low"
+        elif route["duration_hr"] <= 7:
+            traffic = "Medium"
+        else:
+            traffic = "High"
 
-        toll = random.randint(300, 900)
+        # Toll based on distance
+        toll = int(route["distance_km"] * 1.2)
 
         score = 100
 
+        # Distance Penalty
         score -= route["distance_km"] * 0.03
 
+        # Duration Penalty
         score -= route["duration_hr"] * 5
 
+        # Traffic Penalty
         if traffic == "Medium":
             score -= 10
-
         elif traffic == "High":
             score -= 20
 
+        # Toll Penalty
+        score -= toll / 100
+
+        # High Priority prefers faster routes
         if priority.lower() == "high":
             score -= route["duration_hr"] * 2
 
