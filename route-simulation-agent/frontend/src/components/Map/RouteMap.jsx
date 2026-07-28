@@ -43,7 +43,7 @@ const RouteMap = ({ srcCoords, destCoords, waypoints, currentLocation, source, d
       <div className="card-header">
         <div className="card-title">🗺️ Route Map</div>
       </div>
-      <div className="map-wrapper" style={{ flex: 1, minHeight: '380px' }}>
+      <div className="map-wrapper" style={{ flex: 1, minHeight: '480px' }}>
         <MapContainer 
           center={srcCoords} 
           zoom={7} 

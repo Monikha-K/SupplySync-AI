@@ -11,7 +11,7 @@ const SimulationLog = ({ timeline }) => {
   }, [timeline]);
 
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '260px' }}>
       <div className="card-header">
         <div className="card-title">📝 Simulation Log</div>
       </div>

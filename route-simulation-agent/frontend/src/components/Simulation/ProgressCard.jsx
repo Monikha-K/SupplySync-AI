@@ -3,22 +3,22 @@ import { SIM_STATUS, STATUS_ORDER } from '../../constants/simulationStatus';
 
 const ProgressCard = ({ progress, status, remainingDistance, remainingETA }) => {
   return (
-    <div className="card">
+    <div className="card" style={{ flexShrink: 0 }}>
       <div className="card-header">
         <div className="card-title">📈 Simulation Progress</div>
       </div>
       <div className="card-body">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div className="progress-pct-display">{progress.toFixed(1)}%</div>
-            <div style={{ color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 600 }}>OVERALL PROGRESS</div>
+            <div style={{ color: 'var(--muted)', fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.5px' }}>OVERALL PROGRESS</div>
           </div>
-          <div className="progress-stats">
-            <div className="progress-stat">
+          <div className="progress-stats" style={{ display: 'flex', gap: '0.75rem', marginTop: 0 }}>
+            <div className="progress-stat" style={{ flex: '1 1 130px', minWidth: '130px' }}>
               <div className="progress-stat-label">Remaining Distance</div>
               <div className="progress-stat-value">{remainingDistance} km</div>
             </div>
-            <div className="progress-stat">
+            <div className="progress-stat" style={{ flex: '1 1 130px', minWidth: '130px' }}>
               <div className="progress-stat-label">Remaining ETA</div>
               <div className="progress-stat-value">{remainingETA}</div>
             </div>

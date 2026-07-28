@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     MONGODB_URI: str
     DATABASE_NAME: str = "SupplySyncAI"
     COLLECTION_NAME: str = "shipments"
+    ACCEPTED_SHIPMENTS_COLLECTION: str = "accepted_shipments"
 
     model_config = SettingsConfigDict(
         env_file=".env",

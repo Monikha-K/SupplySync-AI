@@ -78,9 +78,49 @@ const AcceptanceSummary = ({ shipment, onReset }) => {
         </div>
 
         {/* ── Action Buttons ── */}
-        <div className="btn-row">
-          <button className="btn-primary" onClick={onReset} style={{ flex: 1 }}>
+        <div className="btn-row" style={{ marginBottom: '2rem' }}>
+          <button className="btn-secondary" onClick={onReset} style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-color)' }}>
             🔍 Recommend Another Shipment
+          </button>
+        </div>
+
+        <div className="divider" />
+
+        {/* ── NEXT AGENT ── */}
+        <div className="ai-report-card" style={{ marginTop: '2rem', border: '1px solid var(--accent-color)' }}>
+          <div className="ai-report-header-row">
+            <div>
+              <div className="section-title-inline" style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>NEXT AGENT</div>
+              <div className="ai-report-title" style={{ fontSize: '1.2rem' }}>Route Simulation Agent</div>
+            </div>
+            <div className="status-badge badge-accepted">Ready</div>
+          </div>
+
+          <div className="data-grid" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+            {[
+              ['Shipment ID', <span style={{ fontFamily: 'monospace' }}>{shipment.shipmentId}</span>],
+              ['Distance', `${shipment.distanceKm} km`],
+              ['Average ETA', `${shipment.averageETAHours} hrs`],
+              ['Simulation Status', <span style={{ color: 'var(--muted-color)' }}>Not Started</span>],
+            ].map(([lbl, val]) => (
+              <div key={lbl} className="data-item">
+                <div className="label">{lbl}</div>
+                <div className="value">{val}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+            <span className="success-icon-circle" style={{ width: '24px', height: '24px', fontSize: '0.8rem' }}>✓</span>
+            <span style={{ color: 'var(--success-color)', fontWeight: 600 }}>Ready for Simulation</span>
+          </div>
+
+          <button 
+            className="btn-primary" 
+            style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
+            onClick={() => window.location.href = `http://localhost:5177/?shipmentId=${shipment.shipmentId}`}
+          >
+            ▶️ Proceed to Route Simulation
           </button>
         </div>
       </div>

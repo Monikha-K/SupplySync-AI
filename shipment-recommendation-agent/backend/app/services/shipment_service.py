@@ -42,11 +42,38 @@ async def accept_shipment(shipment_id: str):
     if shipment["status"] != "Available":
         raise HTTPException(status_code=409, detail="Shipment is not available")
         
+    # Check if already in accepted_shipments
+    existing_accepted = await mongodb.db[settings.ACCEPTED_SHIPMENTS_COLLECTION].find_one({"shipmentId": shipment_id})
+    if existing_accepted:
+        raise HTTPException(status_code=409, detail="Shipment already accepted.")
+        
+    # Update shipment status
     await mongodb.db[settings.COLLECTION_NAME].update_one(
         {"shipmentId": shipment_id},
         {"$set": {"status": "Accepted", "updatedAt": datetime.datetime.utcnow()}}
     )
     
-    updated_shipment = await mongodb.db[settings.COLLECTION_NAME].find_one({"shipmentId": shipment_id})
-    updated_shipment.pop("_id", None)
-    return updated_shipment
+    # Create accepted_shipment document
+    accepted_doc = {
+        "shipmentId": shipment.get("shipmentId"),
+        "organizationName": shipment.get("organizationName"),
+        "organizationRating": shipment.get("organizationRating"),
+        "source": shipment.get("source"),
+        "destination": shipment.get("destination"),
+        "distanceKm": shipment.get("distanceKm"),
+        "averageETAHours": shipment.get("averageETAHours"),
+        "vehicleType": shipment.get("vehicleType"),
+        "shipmentWeight": shipment.get("shipmentWeight"),
+        "status": "Accepted",
+        "acceptedAt": datetime.datetime.utcnow(),
+        "readyForSimulation": True,
+        "simulationStatus": "Not Started"
+    }
+    
+    await mongodb.db[settings.ACCEPTED_SHIPMENTS_COLLECTION].insert_one(accepted_doc)
+    
+    return {
+        "message": "Shipment Accepted Successfully",
+        "shipmentId": shipment_id,
+        "simulationReady": True
+    }
