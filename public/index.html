@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SupplySync AI | Shipment Monitoring Agent</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Leaflet Real Geographical Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="brand" onclick="showSearchScreen()">
+        <div class="brand-icon">S</div>
+        <div class="brand-title">
+          SupplySync AI
+          <span class="brand-badge">Agent v2.4</span>
+        </div>
+      </a>
+
+      <div class="nav-right">
+        <button class="profile-btn" onclick="openCreateModal()" style="background: rgba(37,99,235,0.15); border-color: var(--primary);">
+          <span>➕ Create Shipment</span>
+        </button>
+
+        <div class="db-status-pill" id="dbStatusBtn" title="Click to view MongoDB Atlas connection info">
+          <div class="pulse-dot" id="dbPulse"></div>
+          <span id="dbStatusLabel">Checking Database...</span>
+        </div>
+
+        <button class="profile-btn" id="profileBtn">
+          <span>Profile</span>
+          <span style="font-size: 0.75rem; opacity: 0.7;">👤</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Application Area -->
+  <main class="main-layout container">
+
+    <!-- Agent Hero Header -->
+    <header class="agent-header">
+      <div class="agent-subtitle">
+        <span>🤖</span> Autonomous Logistics Intelligence
+      </div>
+      <h1 class="agent-title">Shipment Monitoring Agent</h1>
+    </header>
+
+    <!-- Screen 1: Initial Search View -->
+    <section class="search-card" id="searchScreen">
+      <p class="search-instruction">Track your shipment using the Shipment ID</p>
+
+      <form id="trackingForm" onsubmit="handleSearch(event)">
+        <div class="input-group">
+          <label for="shipmentInput" class="input-label">Shipment ID</label>
+          <div class="input-field-wrapper">
+            <input 
+              type="text" 
+              id="shipmentInput" 
+              class="search-input" 
+              placeholder="e.g. SHP1001" 
+              value="SHP1001" 
+              required
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="trackBtn">
+          <span id="trackBtnText">Track Shipment</span>
+          <span id="trackSpinner" style="display: none;">⏳</span>
+        </button>
+      </form>
+
+      <div class="quick-samples">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Quick Select:</span>
+        <button class="sample-chip" onclick="selectSample('SHP1001')">SHP1001 (In Transit)</button>
+        <button class="sample-chip" onclick="selectSample('SHP1002')">SHP1002 (Delayed)</button>
+        <button class="sample-chip" onclick="selectSample('SHP1003')">SHP1003 (Delivered)</button>
+        <button class="sample-chip" onclick="selectSample('SHP1004')">SHP1004 (Cold Chain)</button>
+      </div>
+    </section>
+
+    <!-- Screen 2: Results View -->
+    <section class="results-view" id="resultsScreen">
+
+      <!-- Shipment Meta Header -->
+      <div class="shipment-meta-card">
+        <div class="meta-info-primary">
+          <h2>
+            <span>Shipment ID :</span>
+            <span id="resShipmentId" style="color: #60A5FA;">SHP1001</span>
+          </h2>
+          <div class="meta-route">
+            Route: <strong id="resPickup">Chennai</strong> ➔ <strong id="resDestination">Coimbatore</strong>
+          </div>
+        </div>
+
+        <div class="meta-right">
+          <div class="driver-info">
+            Driver: <strong id="resDriver">Rajesh Kumar</strong>
+            <span id="resUpdated" style="font-size: 0.75rem; display: block; opacity: 0.7;">Last Updated: 28 Jul 2026 • 10:30 AM</span>
+          </div>
+          
+          <button class="profile-btn" style="background: var(--primary);" onclick="toggleSimulation()" id="simBtn">
+            <span id="simBtnIcon">▶</span> <span id="simBtnText">Simulate Live Movement</span>
+          </button>
+          
+          <button class="back-btn" onclick="exportReport()">📄 Export Report</button>
+          <button class="back-btn" onclick="showSearchScreen()">🔍 New Search</button>
+        </div>
+      </div>
+
+      <!-- 4 Cards Row: Status, Location, ETA, Progress -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Shipment Status</div>
+          <div class="metric-value">
+            <span id="resStatusBadge" class="metric-status-badge success">
+              🟢 In Transit
+            </span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Current Location</div>
+          <div class="metric-value" id="resLocation">Salem</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">ETA</div>
+          <div class="metric-value" id="resETA">3 Hours</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Progress</div>
+          <div class="metric-value" id="resProgressCard">65%</div>
+        </div>
+      </div>
+
+      <!-- Live Google Map Visualizer Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            <span>🗺️</span> Live Google Maps Telemetry & Route Map
+          </div>
+          <span style="font-size: 0.8rem; color: #60A5FA; font-weight: 600;">Google Maps API Enabled</span>
+        </div>
+
+        <div id="mapWrapper" style="width: 100%; height: 360px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); position: relative; background: #0F172A;">
+          <div id="googleMap" style="width: 100%; height: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📊</span> Progress Bar & Live Telemetry
+          </div>
+          <div class="progress-value-text" id="resProgressText">65%</div>
+        </div>
+
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="resProgressFill" style="width: 65%;"></div>
+        </div>
+
+        <div class="progress-telemetry-row">
+          <span>Speed: <strong id="resSpeed" style="color: var(--text-main);">68 km/h</strong></span>
+          <span>Temp: <strong id="resTemp" style="color: var(--text-main);">4.2 °C</strong></span>
+          <span>Distance: <strong id="resDistance" style="color: var(--text-main);">340 / 520 km</strong></span>
+        </div>
+      </div>
+
+      <!-- Delivery Journey Vertical Timeline -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📍</span> Delivery Journey Timeline
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Real-time Checkpoint Telemetry</span>
+        </div>
+
+        <div class="timeline-container" id="resTimeline">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <!-- Live Agent Telemetry Feed Log -->
+      <div class="section-card" id="simFeedCard" style="display: none;">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📡</span> Live Agent Telemetry Feed
+          </div>
+          <span style="font-size: 0.75rem; color: var(--success); font-weight: 700;">LIVE CONNECTED</span>
+        </div>
+        <div id="simLogList" style="font-family: monospace; font-size: 0.82rem; color: #94A3B8; max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+        </div>
+      </div>
+
+      <!-- AI Shipment Update / Summary -->
+      <div class="ai-summary-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="ai-badge">✨ AI Shipment Update</div>
+          <button class="sample-chip" onclick="readSummarySpeech()" style="background: rgba(37,99,235,0.2); color: #60A5FA;">
+            🔊 Read AI Voice
+          </button>
+        </div>
+
+        <p class="ai-summary-text" id="resAISummary">
+          Shipment SHP1001 is currently travelling through Salem and is expected to reach Coimbatore within the next 3 hours. Transit is progressing normally with no delivery risks identified.
+        </p>
+
+        <div class="ai-meta-pills">
+          <div class="ai-meta-pill">Risk Level: <strong id="resRiskLevel" style="color: #4ADE80;">Low / Normal</strong></div>
+          <div class="ai-meta-pill">AI Confidence: <strong>99.4%</strong></div>
+          <div class="ai-meta-pill">Route Health: <strong>Optimal</strong></div>
+        </div>
+
+        <!-- Interactive AI Assistant Query -->
+        <div class="ai-interactive-box">
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 8px;">
+            Ask AI Agent about this shipment:
+          </label>
+          <div class="ai-input-row">
+            <input 
+              type="text" 
+              id="aiQueryInput" 
+              class="ai-input" 
+              placeholder="e.g. Will there be any traffic delays? or Driver contact?"
+              onkeydown="if(event.key==='Enter') sendAIQuery()"
+            />
+            <button class="ai-send-btn" onclick="sendAIQuery()">Ask Agent</button>
+          </div>
+          <div class="ai-response-output" id="aiResponseBox"></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Create New Shipment Modal -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.2rem; font-weight: 700;">Create New Shipment Record</h3>
+        <button class="modal-close" onclick="closeCreateModal()">✕</button>
+      </div>
+
+      <form onsubmit="submitNewShipment(event)">
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="input-label">Shipment ID</label>
+          <input type="text" id="newShipmentId" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="e.g. SHP2026" required />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label class="input-label">Driver Name</label>
+            <input type="text" id="newDriver" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="e.g. Rahul Sharma" required />
+          </div>
+          <div>
+            <label class="input-label">Driver Phone</label>
+            <input type="text" id="newPhone" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="+91 98000 11111" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label class="input-label">Pickup Origin</label>
+            <input type="text" id="newPickup" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="e.g. Chennai" required />
+          </div>
+          <div>
+            <label class="input-label">Destination</label>
+            <input type="text" id="newDestination" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="e.g. Coimbatore" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+          <div>
+            <label class="input-label">Current Location</label>
+            <input type="text" id="newLocation" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" placeholder="e.g. Salem" />
+          </div>
+          <div>
+            <label class="input-label">Progress (%)</label>
+            <input type="number" id="newProgress" class="search-input" style="padding: 10px 14px; font-size: 0.95rem;" value="50" min="0" max="100" />
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="back-btn" onclick="closeCreateModal()">Cancel</button>
+          <button type="submit" class="btn-primary" style="width: auto; padding: 10px 24px; font-size: 0.9rem;">Save Shipment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MongoDB Setup & Status Modal -->
+  <div class="modal-overlay" id="dbModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.2rem; font-weight: 700;">MongoDB Atlas Status</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+        Database Connection Diagnostics:
+      </p>
+
+      <div class="code-box" id="modalConnectionStr">
+        Connection Status: Checking...
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+        To link your MongoDB Atlas cluster directly, set your database password in the <code>.env</code> file:
+      </p>
+      <div class="code-box">
+        mongodb+srv://supplysync:&lt;db_password&gt;@practicemangodb.byczjgw.mongodb.net/?appName=PracticeMangoDb
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="back-btn" onclick="seedDatabase()" id="seedBtn">🌱 Seed Atlas Demo Data</button>
+        <button class="btn-primary" style="width: auto; padding: 8px 18px; font-size: 0.85rem;" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      SupplySync AI Logistics Suite &copy; 2026 • Shipment Monitoring Agent
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>
