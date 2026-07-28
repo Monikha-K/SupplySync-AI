@@ -1,4 +1,6 @@
 import os
+import json
+
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -9,34 +11,49 @@ client = Groq(
 )
 
 
-def explain_route(route, priority):
+def explain_best_route(best_route, alternatives, priority):
 
     prompt = f"""
 You are an AI Route Optimization Expert.
 
-Distance: {route['distance_km']} km
+Shipment Priority:
 
-Duration: {route['duration_hr']} hours
+{priority}
 
-Traffic: {route['traffic']}
+Best Route:
 
-Toll Cost: ${route['toll_cost']}
+{json.dumps(best_route, indent=2)}
 
-Priority: {priority}
+Alternative Routes:
 
-Explain in 3-4 sentences why this route is recommended.
+{json.dumps(alternatives, indent=2)}
+
+Compare the best route with the alternatives.
+
+Explain why the selected route is better.
+
+Mention
+
+- Distance
+- Duration
+- Traffic
+- Toll Cost
+- Score
 
 Return ONLY the explanation.
 """
 
     response = client.chat.completions.create(
+
         model="llama-3.3-70b-versatile",
+
         messages=[
             {
                 "role": "user",
                 "content": prompt
             }
         ],
+
         temperature=0
     )
 

@@ -1,35 +1,54 @@
 import random
 
 
-def score_route(route, priority):
+def score_routes(routes, priority):
 
-    traffic = random.choice(["Low", "Medium", "High"])
+    ranked_routes = []
 
-    toll = random.randint(300, 900)
+    for route in routes:
 
-    score = 100
+        traffic = random.choice([
+            "Low",
+            "Medium",
+            "High"
+        ])
 
-    # Distance Score
-    score -= route["distance_km"] * 0.03
+        toll = random.randint(300, 900)
 
-    # Duration Score
-    score -= route["duration_hr"] * 5
+        score = 100
 
-    # Traffic Penalty
-    if traffic == "Medium":
-        score -= 10
+        score -= route["distance_km"] * 0.03
 
-    elif traffic == "High":
-        score -= 20
+        score -= route["duration_hr"] * 5
 
-    # Priority Adjustment
-    if priority.lower() == "high":
-        score -= route["duration_hr"] * 2
+        if traffic == "Medium":
+            score -= 10
 
-    return {
-        "distance_km": route["distance_km"],
-        "duration_hr": route["duration_hr"],
-        "traffic": traffic,
-        "toll_cost": toll,
-        "score": round(score, 2)
-    }
+        elif traffic == "High":
+            score -= 20
+
+        if priority.lower() == "high":
+            score -= route["duration_hr"] * 2
+
+        ranked_routes.append({
+
+            "route_name": route["route_name"],
+
+            "distance_km": route["distance_km"],
+
+            "duration_hr": route["duration_hr"],
+
+            "traffic": traffic,
+
+            "toll_cost": toll,
+
+            "score": round(score, 2)
+
+        })
+
+    ranked_routes.sort(
+        key=lambda x: x["score"],
+        reverse=True
+    )
+
+    return ranked_routes
