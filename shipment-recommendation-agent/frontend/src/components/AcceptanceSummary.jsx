@@ -1,0 +1,91 @@
+import React from 'react';
+
+const AcceptanceSummary = ({ shipment, onReset }) => {
+  const confidence = (shipment.organizationRating / 5 * 100).toFixed(0);
+
+  return (
+    <div className="acceptance-card">
+      {/* ── Green Banner ── */}
+      <div className="acceptance-banner">
+        <div className="success-icon-circle">✅</div>
+        <div className="acceptance-title">Shipment Successfully Accepted</div>
+        <div className="acceptance-sub">
+          The AI Agent has successfully assigned this shipment.
+        </div>
+      </div>
+
+      <div className="acceptance-body">
+        {/* ── Summary Details ── */}
+        <div className="section-title-inline">SHIPMENT DETAILS</div>
+        <div className="data-grid">
+          {[
+            ['Shipment ID',       <span style={{ fontFamily: 'monospace' }}>{shipment.shipmentId}</span>],
+            ['Organization',      shipment.organizationName],
+            ['Source',            shipment.source],
+            ['Destination',       shipment.destination],
+            ['Vehicle Type',      shipment.vehicleType],
+            ['Weight',            `${shipment.shipmentWeight} kg`],
+            ['Distance',          `${shipment.distanceKm} km`],
+            ['ETA',               `${shipment.averageETAHours} hrs`],
+            ['Accepted Time',     shipment.acceptedAt],
+            ['Shipment Status',   <span className="status-badge badge-accepted">Accepted</span>],
+            ['Assignment Status', <span style={{ color: 'var(--success-color)', fontWeight: 700 }}>✓ Completed</span>],
+            ['Driver Status',     <span style={{ color: 'var(--warning-color)', fontWeight: 700 }}>🟡 Ready for Pickup</span>],
+          ].map(([lbl, val]) => (
+            <div key={lbl} className="data-item">
+              <div className="label">{lbl}</div>
+              <div className="value">{val}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="divider" />
+
+        {/* ── AI Assignment Report ── */}
+        <div className="ai-report-card">
+          <div className="ai-report-header-row">
+            <div>
+              <div className="ai-report-title">AI Assignment Report</div>
+              <div className="ai-report-sub">Recommendation analysis by SupplySync AI</div>
+            </div>
+            <div className="ai-report-badge">Agent Report</div>
+          </div>
+
+          <div className="ai-stats-row">
+            <div className="ai-stat-item">
+              <div className="ai-stat-label">Confidence</div>
+              <div className="ai-stat-value" style={{ color: 'var(--accent-color)' }}>{confidence}%</div>
+            </div>
+            <div className="ai-stat-item">
+              <div className="ai-stat-label">Org Rating</div>
+              <div className="ai-stat-value" style={{ color: 'var(--warning-color)' }}>{shipment.organizationRating}/5</div>
+            </div>
+            <div className="ai-stat-item">
+              <div className="ai-stat-label">Est. Arrival</div>
+              <div className="ai-stat-value">{shipment.averageETAHours} hrs</div>
+            </div>
+            <div className="ai-stat-item">
+              <div className="ai-stat-label">Decision Time</div>
+              <div className="ai-stat-value" style={{ color: 'var(--secondary-color)' }}>1.2s</div>
+            </div>
+          </div>
+
+          <div className="ai-reason-text">
+            <strong style={{ color: 'var(--heading-color)' }}>Reason: </strong>
+            Highest rated organization on the {shipment.source} → {shipment.destination} route with a rating of{' '}
+            {shipment.organizationRating}/5. Selected based on organization reliability, availability, and shortest ETA.
+          </div>
+        </div>
+
+        {/* ── Action Buttons ── */}
+        <div className="btn-row">
+          <button className="btn-primary" onClick={onReset} style={{ flex: 1 }}>
+            🔍 Recommend Another Shipment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AcceptanceSummary;

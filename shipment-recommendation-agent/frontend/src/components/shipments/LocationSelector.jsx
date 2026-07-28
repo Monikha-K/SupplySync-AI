@@ -1,75 +1,69 @@
 import React, { useState } from 'react';
 
-const CITIES = [
-  'Mumbai, MH',
-  'Delhi, DL',
-  'Bangalore, KA',
-  'Chennai, TN',
-  'Hyderabad, TS',
-  'Pune, MH',
-  'Kolkata, WB',
-  'Ahmedabad, GJ',
-  'Jaipur, RJ',
-  'Surat, GJ',
-  'Lucknow, UP',
-  'Kochi, KL',
-  'Chandigarh, PB',
-  'Nagpur, MH',
-  'Bhopal, MP',
-];
-
-const LocationSelector = ({ onSearch, isLoading }) => {
+const LocationSelector = ({ sources, destinations, onSearch, isLoading }) => {
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
 
-  const handleSearch = () => {
-    if (source && destination && source !== destination) {
-      onSearch(source, destination);
-    }
-  };
+  const sorted = arr => [...(arr || [])].sort();
+  const canSearch = source && destination && source !== destination;
+
+  const handleClear = () => { setSource(''); setDestination(''); };
 
   return (
     <div className="search-card">
-      <h3>Search Available Shipments</h3>
-      <div className="search-row">
-        <div className="input-group">
-          <label htmlFor="source">Source Location</label>
+      <div className="search-card-header">
+        <div className="search-card-title">🔍 Find Available Shipments</div>
+        <div className="search-card-subtitle">
+          Select your pickup and delivery districts to see AI-recommended loads
+        </div>
+      </div>
+
+      <div className="search-form">
+        <div className="form-group">
+          <label className="form-label">📍 Source District</label>
           <select
-            id="source"
+            id="source-select"
+            className="form-select"
             value={source}
-            onChange={(e) => setSource(e.target.value)}
+            onChange={e => setSource(e.target.value)}
           >
-            <option value="">Select Origin...</option>
-            {CITIES.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
+            <option value="">Choose origin...</option>
+            {sorted(sources).map(city => (
+              <option key={city} value={city}>{city}</option>
             ))}
           </select>
         </div>
 
-        <div className="input-group">
-          <label htmlFor="destination">Destination Location</label>
+        <div className="form-group">
+          <label className="form-label">🏁 Destination District</label>
           <select
-            id="destination"
+            id="destination-select"
+            className="form-select"
             value={destination}
-            onChange={(e) => setDestination(e.target.value)}
+            onChange={e => setDestination(e.target.value)}
           >
-            <option value="">Select Destination...</option>
-            {CITIES.map((city) => (
-              <option key={city} value={city} disabled={city === source}>
-                {city}
-              </option>
+            <option value="">Choose destination...</option>
+            {sorted(destinations).map(city => (
+              <option key={city} value={city} disabled={city === source}>{city}</option>
             ))}
           </select>
         </div>
 
         <button
-          className="btn-primary"
-          onClick={handleSearch}
-          disabled={isLoading || !source || !destination || source === destination}
+          id="find-shipments-btn"
+          className="btn btn-primary"
+          onClick={() => canSearch && onSearch(source, destination)}
+          disabled={isLoading || !canSearch}
         >
-          {isLoading ? 'Searching...' : 'Find Shipments'}
+          {isLoading ? '⏳ Searching...' : '🚀 Find Shipments'}
+        </button>
+
+        <button
+          className="btn btn-outline"
+          onClick={handleClear}
+          disabled={isLoading}
+        >
+          Clear
         </button>
       </div>
     </div>
