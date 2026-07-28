@@ -32,7 +32,9 @@ export function getStatusVariant(status) {
     case SIM_STATUS.PICKUP_STARTED:   return 'status-pickup';
     case SIM_STATUS.IN_TRANSIT:       return 'status-transit';
     case SIM_STATUS.NEAR_DESTINATION: return 'status-near';
-    case SIM_STATUS.REACHED:          return 'status-reached';
+    case SIM_STATUS.REACHED:
+    case 'Completed':
+    case 'Reached':                   return 'status-reached';
     default:                          return 'status-accepted';
   }
 }
@@ -48,7 +50,9 @@ export function getStatusIcon(status) {
     case SIM_STATUS.PICKUP_STARTED:   return '📦';
     case SIM_STATUS.IN_TRANSIT:       return '🚚';
     case SIM_STATUS.NEAR_DESTINATION: return '📍';
-    case SIM_STATUS.REACHED:          return '✅';
+    case SIM_STATUS.REACHED:
+    case 'Completed':
+    case 'Reached':                   return '✅';
     default:                          return '⏳';
   }
 }

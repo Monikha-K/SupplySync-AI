@@ -41,3 +41,19 @@ export const triggerSimulationEvent = async (simulationId, eventName) => {
   const response = await axios.post(`${API_BASE_URL}/${simulationId}/event`, { event: eventName });
   return response.data;
 };
+
+export const completeSimulation = async (simulationId, payload = {}) => {
+  const response = await axios.post(`${API_BASE_URL}/${simulationId}/complete`, payload);
+  return response.data;
+};
+
+export const fetchCompletedSimulations = async () => {
+  const response = await axios.get(`${API_BASE_URL}/completed`);
+  return response.data;
+};
+
+export const fetchCompletedSimulationByShipment = async (shipmentId) => {
+  const response = await axios.get(`${API_BASE_URL}/completed/${shipmentId}`);
+  return response.data;
+};
+

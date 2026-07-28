@@ -34,6 +34,8 @@ export function useSimulation() {
       checkpointInterval: simulationDoc.checkpointInterval || '25 km',
       animationSpeed: simulationDoc.animationSpeed || 'Medium',
       modeTriggered: false,
+      completionSaved: false,
+      completedDoc: null,
       timeline: [],
       startTime: null,
       srcCoords: simulationDoc.routeCoordinates[0],
@@ -150,6 +152,28 @@ export function useSimulation() {
     }
     return () => clearInterval(tickRef.current);
   }, [simState?.simulationRunning, simState?.simulationPaused, simState?.simulationSpeed, tick]);
+
+  useEffect(() => {
+    if (simState && simState.progress >= 100 && !simState.completionSaved) {
+      setSimState(prev => prev ? { ...prev, completionSaved: true } : prev);
+      api.completeSimulation(simState.simulationId, {
+        simulationSpeed: simState.simulationSpeed
+      })
+      .then(completedDoc => {
+        setSimState(prev => prev ? {
+          ...prev,
+          completedDoc,
+          performanceScore: completedDoc.performanceScore,
+          delayMinutes: completedDoc.delayMinutes,
+          actualTravelTime: completedDoc.actualTravelTime,
+          status: 'Completed'
+        } : prev);
+      })
+      .catch(err => {
+        console.error('Failed to save completion data:', err);
+      });
+    }
+  }, [simState?.progress, simState?.completionSaved, simState?.simulationId, simState?.simulationSpeed]);
 
   const startSimulation = useCallback(async () => {
     if (!simState) return;

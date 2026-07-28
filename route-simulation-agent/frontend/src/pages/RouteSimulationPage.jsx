@@ -148,7 +148,7 @@ const RouteSimulationPage = () => {
             />
 
             {isFinished ? (
-              <CompletionCard shipment={simState.shipment} startTime={simState.startTime} />
+              <CompletionCard shipment={simState.shipment} startTime={simState.startTime} simState={simState} />
             ) : (
               <>
                 <AISimulationStrategy simulationMode={simState.simulationMode || 'Normal Journey'} />

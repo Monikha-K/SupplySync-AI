@@ -8,7 +8,8 @@ export const SIM_STATUS = {
   PICKUP_STARTED:    'Pickup Started',
   IN_TRANSIT:        'In Transit',
   NEAR_DESTINATION:  'Near Destination',
-  REACHED:           'Reached',
+  REACHED:           'Completed',
+  COMPLETED:         'Completed',
 };
 
 // Ordered list used to progress through statuses

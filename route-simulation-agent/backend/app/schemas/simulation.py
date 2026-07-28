@@ -35,3 +35,9 @@ class SimulationBase(BaseModel):
     activeEvent: Optional[str] = None
     createdAt: datetime
     updatedAt: datetime
+
+class CompleteSimulationRequest(BaseModel):
+    actualTravelTime: Optional[float] = None
+    simulationEvents: Optional[List[str]] = None
+    simulationSpeed: Optional[Any] = None
+
