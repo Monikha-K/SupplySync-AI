@@ -1,0 +1,81 @@
+.map-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.map-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59,130,246,0.22);
+}
+
+/* Leaflet map container */
+.leaflet-wrapper {
+  border-radius: 14px;
+  overflow: hidden;
+  height: 380px;
+  width: 100%;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  margin-top: 4px;
+}
+
+/* Override leaflet default attribution z-index issues */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #0F172A;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+/* Info strip below map */
+.map-info-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.map-info-item {
+  flex: 1;
+  min-width: 120px;
+  background: rgba(2, 8, 23, 0.55);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-info-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
+}
+
+.map-info-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #E2E8F0;
+}
+
+.map-info-value.cyan  { color: #67E8F9; }
+.map-info-value.green { color: #4ADE80; }
+
+/* Unknown city fallback notice */
+.map-fallback-notice {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  border-radius: 10px;
+  font-size: 12px;
+  color: #FCD34D;
+}

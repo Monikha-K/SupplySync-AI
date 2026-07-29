@@ -1,79 +1,67 @@
 import { useState } from "react";
 import "./styles/App.css";
-import SearchBar from "./components/SearchBar";
 import api from "./services/api";
 
-function App() {
+import Navbar        from "./components/Navbar";
+import Hero          from "./components/Hero";
+import SearchCard    from "./components/SearchCard";
+import ShipmentCard  from "./components/ShipmentCard";
+import ETACard       from "./components/ETACard";
+import AISummaryCard from "./components/AISummaryCard";
+import LiveRouteMap  from "./components/LiveRouteMap";
+import Notification  from "./components/Notification";
 
+function App() {
   const [shipment, setShipment] = useState(null);
-  const [eta, setEta] = useState(null);
-  const [summary, setSummary] = useState("");
+  const [eta,      setEta]      = useState(null);
+  const [summary,  setSummary]  = useState("");
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(null);
 
   const searchShipment = async (shipmentId) => {
+    setLoading(true);
+    setError(null);
+    setShipment(null);
+    setEta(null);
+    setSummary("");
 
     try {
-
       const response = await api.get(`/eta/${shipmentId}`);
-
       setShipment(response.data.shipment);
       setEta(response.data.eta);
       setSummary(response.data.ai_summary);
-
     } catch {
-
-      alert("Shipment not found!");
-
-      setShipment(null);
-      setEta(null);
-      setSummary("");
-
+      setError("Please enter a valid Shipment ID.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="app">
+      <Navbar />
 
-      <h1>SupplySync AI</h1>
+      <div className="main-content">
+        <Hero />
 
-      <p>AI-Powered ETA Prediction Agent for Smart Logistics</p>
+        <SearchCard onSearch={searchShipment} loading={loading} />
 
-      <SearchBar onSearch={searchShipment} />
+        {error && (
+          <Notification message={error} onClose={() => setError(null)} />
+        )}
 
-      {shipment && (
-        <div className="result-container">
+        {shipment && eta && (
+          <div className="results-section">
+            <div className="cards-grid">
+              <ShipmentCard  shipment={shipment} />
+              <ETACard       eta={eta} shipment={shipment} />
+              <AISummaryCard summary={summary} />
+            </div>
 
-          <div className="card">
-
-            <h2>Shipment Details</h2>
-
-            <p><b>ID:</b> {shipment.shipmentId}</p>
-            <p><b>Pickup:</b> {shipment.pickup}</p>
-            <p><b>Current:</b> {shipment.currentLocation}</p>
-            <p><b>Destination:</b> {shipment.destination}</p>
-            <p><b>Traffic:</b> {shipment.traffic}</p>
-            <p><b>Weather:</b> {shipment.weather}</p>
-
+            <LiveRouteMap shipment={shipment} eta={eta} />
           </div>
-
-          <div className="card">
-
-            <h2>ETA Prediction</h2>
-
-            <h3>{eta.formatted}</h3>
-
-          </div>
-
-          <div className="card">
-
-            <h2>AI Summary</h2>
-
-            <p>{summary}</p>
-
-          </div>
-
-        </div>
-      )}
-
+        )}
+      </div>
     </div>
   );
 }

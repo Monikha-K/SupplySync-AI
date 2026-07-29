@@ -1,0 +1,49 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  background: rgba(2, 8, 23, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  text-decoration: none;
+}
+
+.navbar-brand .truck { font-size: 22px; }
+.navbar-brand .brand-white { color: #F1F5F9; }
+.navbar-brand .brand-cyan  { color: #06B6D4; }
+
+.navbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #93C5FD;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.navbar-badge:hover {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.navbar-badge .sparkle { font-size: 14px; }
