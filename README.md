@@ -384,3 +384,5 @@ SupplySync-AI/
 # License
 
 This project is developed for academic and research purposes. It demonstrates the implementation of an Agentic AI-based Multi-Agent System for intelligent logistics management by coordinating multiple specialized AI agents to automate operational workflows and support real-time decision-making.
+#   s u p p l y - s y n c - m u l t i a g e n t  
+ 
