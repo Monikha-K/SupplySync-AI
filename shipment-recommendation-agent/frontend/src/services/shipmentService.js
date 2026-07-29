@@ -20,7 +20,7 @@ export const fetchShipments = async (source, destination) => {
   return response.data;
 };
 
-export const acceptShipment = async (shipmentId) => {
-  const response = await axios.put(`${API_URL}/${shipmentId}/accept`);
+export const acceptShipment = async (shipmentId, recommendationData = {}) => {
+  const response = await axios.put(`${API_URL}/${shipmentId}/accept`, recommendationData);
   return response.data;
 };

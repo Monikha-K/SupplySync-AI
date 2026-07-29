@@ -1,0 +1,111 @@
+.comparison-card {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.comparison-title {
+  font-size: 1.2rem;
+  color: var(--heading-color);
+  margin-bottom: 1rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.comparison-table th {
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--muted-text);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.comparison-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.row-recommended {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.row-rejected {
+  opacity: 0.6;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill.recommended {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.status-pill.alternative {
+  background-color: rgba(6, 182, 212, 0.1);
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.status-pill.rejected {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+.shipment-id {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}
+
+.org-name {
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-top: 0.2rem;
+}
+
+.score-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.reason-list-mini {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--body-text);
+}
+
+.reason-list-mini li {
+  position: relative;
+  padding-left: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.reason-list-mini li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--secondary-color);
+}

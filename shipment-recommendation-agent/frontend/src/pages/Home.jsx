@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RouteSelector from '../components/RouteSelector';
 import AIThinking from '../components/AIThinking';
-import RecommendationResult from '../components/RecommendationResult';
+import RecommendationDashboard from '../components/RecommendationDashboard';
 import AcceptanceSummary from '../components/AcceptanceSummary';
 import { fetchSources, fetchDestinations, fetchShipments, acceptShipment } from '../services/shipmentService';
 
@@ -17,8 +17,7 @@ const Home = () => {
   const [pageState, setPageState] = useState(STATE.SELECT);
   const [sources, setSources] = useState([]);
   const [destinations, setDestinations] = useState([]);
-  const [recommendedShipment, setRecommendedShipment] = useState(null);
-  const [otherShipments, setOtherShipments] = useState([]);
+  const [recommendationData, setRecommendationData] = useState(null);
   const [acceptedData, setAcceptedData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -40,9 +39,11 @@ const Home = () => {
     setError(null);
     try {
       const data = await fetchShipments(source, destination);
-      setRecommendedShipment(data.recommendedShipment);
-      setOtherShipments(data.otherShipments || []);
-      setPageState(STATE.RESULT);
+      // Wait for AI Thinking animation to complete (8 steps * 600ms = ~4800ms)
+      setTimeout(() => {
+        setRecommendationData(data);
+        setPageState(STATE.RESULT);
+      }, 5000);
     } catch (e) {
       setError('Failed to fetch shipments. Please try again.');
       setPageState(STATE.SELECT);
@@ -50,7 +51,15 @@ const Home = () => {
   };
 
   const handleAccept = async (shipment) => {
-    await acceptShipment(shipment.shipmentId);
+    // Pass recommendation explainability data
+    const recData = {
+      recommendationScore: shipment.recommendationScore,
+      confidenceScore: shipment.confidenceScore,
+      decisionReasons: shipment.decisionReasons,
+      comparisonRank: shipment.comparisonRank || 1,
+    };
+    
+    await acceptShipment(shipment.shipmentId, recData);
     setAcceptedData({
       ...shipment,
       acceptedAt: new Date().toLocaleString('en-IN'),
@@ -60,20 +69,19 @@ const Home = () => {
 
   const handleReset = () => {
     setPageState(STATE.SELECT);
-    setRecommendedShipment(null);
-    setOtherShipments([]);
+    setRecommendationData(null);
     setAcceptedData(null);
     setError(null);
   };
 
   return (
-    <div className="home-page">
+    <div className="home-page" style={{ maxWidth: '1200px' }}>
       <section className="hero-section">
-        <h2>Shipment Recommendation</h2>
-        <p>Select a source and destination. The AI Agent will find and recommend the best available shipment.</p>
+        <h2>Explainable AI Shipment Recommendation</h2>
+        <p>Select a route. The AI will evaluate, score, compare, and explain its recommendation.</p>
       </section>
 
-      <section className="upload-section">
+      <section className="upload-section" style={{ maxWidth: '100%' }}>
         {error && <div className="error-message">{error}</div>}
 
         {pageState === STATE.SELECT && (
@@ -86,10 +94,9 @@ const Home = () => {
 
         {pageState === STATE.THINKING && <AIThinking />}
 
-        {pageState === STATE.RESULT && (
-          <RecommendationResult
-            recommendedShipment={recommendedShipment}
-            otherShipments={otherShipments}
+        {pageState === STATE.RESULT && recommendationData && (
+          <RecommendationDashboard
+            data={recommendationData}
             onAccept={handleAccept}
             onReset={handleReset}
           />

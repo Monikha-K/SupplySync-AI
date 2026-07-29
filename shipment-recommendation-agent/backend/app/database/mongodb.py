@@ -29,10 +29,11 @@ async def connect_to_mongo():
 
     except Exception as e:
         print(f"Error connecting to MongoDB: {e}")
-        raise e
+        # Do not raise the error, allowing the app to start
+        # The endpoints will handle DB unavailability
 
 
 async def close_mongo_connection():
-    if mongodb.client:
+    if mongodb.client is not None:
         mongodb.client.close()
         print("MongoDB Connection Closed")
