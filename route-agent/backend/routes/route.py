@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from models.route_request import RouteRequest
 
 from services.geocode_service import get_coordinates
-from services.route_service import get_route
+from services.route_service import get_routes
 from services.alternative_route_service import generate_alternative_routes
 from services.scoring_service import score_routes
 from services.groq_service import explain_best_route
@@ -18,19 +18,15 @@ def recommend_route(request: RouteRequest):
 
     delivery = get_coordinates(request.delivery_city)
 
-    base_route = get_route(
-        pickup,
-        delivery
-    )
+    ors_routes = get_routes(pickup, delivery)
 
     routes = generate_alternative_routes(
-        base_route
+        ors_routes,
+        request.pickup_city,
+        request.delivery_city
     )
 
-    ranked_routes = score_routes(
-        routes,
-        request.priority
-    )
+    ranked_routes = score_routes(routes, request.priority)
 
     best_route = ranked_routes[0]
 

@@ -390,6 +390,140 @@ tbody td{
 
 }
 
+/* ================= ASSIGNMENT ================= */
+
+.btn-accept{
+
+    margin-top:24px;
+
+    background:#16A34A;
+
+}
+
+.btn-accept:hover{
+
+    background:#15803D;
+
+}
+
+.btn-assigned{
+
+    margin-top:24px;
+
+    background:#334155;
+
+    cursor:not-allowed;
+
+    opacity:.75;
+
+}
+
+.btn-assigned:hover{
+
+    background:#334155;
+
+}
+
+.assignment-banner{
+
+    background:rgba(22,163,74,.15);
+
+    border-left:5px solid #16A34A;
+
+    padding:18px 22px;
+
+    border-radius:12px;
+
+    color:#86EFAC;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    margin-bottom:24px;
+
+}
+
+/* ================= SHIPMENT DETAILS ================= */
+
+.shipment-details-grid{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+}
+
+.sd-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 0;
+
+    border-bottom:1px solid #334155;
+
+}
+
+.sd-row:last-child{
+
+    border-bottom:none;
+
+}
+
+.sd-label{
+
+    color:#94A3B8;
+
+    font-size:14px;
+
+    min-width:180px;
+
+}
+
+.sd-value{
+
+    color:#F8FAFC;
+
+    font-size:15px;
+
+    font-weight:500;
+
+    text-align:right;
+
+}
+
+.sd-status{
+
+    color:#22C55E;
+
+    font-weight:700;
+
+}
+
+.assignment-error{
+
+    margin-top:16px;
+
+    background:rgba(220,38,38,.15);
+
+    border-left:5px solid #DC2626;
+
+    padding:14px 20px;
+
+    border-radius:10px;
+
+    color:#FCA5A5;
+
+    font-size:14px;
+
+}
+
 /* ================= MOBILE ================= */
 
 @media(max-width:900px){

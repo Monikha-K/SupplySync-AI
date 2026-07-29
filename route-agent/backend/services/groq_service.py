@@ -1,6 +1,4 @@
 import os
-import json
-
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -11,49 +9,52 @@ client = Groq(
 )
 
 
+def _summarize(route):
+    """Return only the fields needed for the LLM — no geometry."""
+    return {
+        "route_name": route.get("route_name"),
+        "distance_km": route.get("distance_km"),
+        "duration_hr": route.get("duration_hr"),
+        "traffic": route.get("traffic"),
+        "toll_cost": route.get("toll_cost"),
+        "score": route.get("score")
+    }
+
+
+def _format_route(route):
+    return (
+        f"Route Name: {route['route_name']}\n"
+        f"Distance: {route['distance_km']} km\n"
+        f"Duration: {route['duration_hr']} hours\n"
+        f"Traffic: {route['traffic']}\n"
+        f"Toll: ₹{route['toll_cost']}\n"
+        f"Score: {route['score']}"
+    )
+
+
 def explain_best_route(best_route, alternatives, priority):
 
-    prompt = f"""
-You are an AI Route Optimization Expert.
+    best = _summarize(best_route)
+    alts = [_summarize(r) for r in alternatives]
 
-Shipment Priority:
+    alt_block = "\n\n".join(_format_route(r) for r in alts) or "None"
 
-{priority}
+    prompt = f"""You are an AI Route Optimization Expert.
 
-Best Route:
+Priority: {priority}
 
-{json.dumps(best_route, indent=2)}
+Recommended Route:
+{_format_route(best)}
 
 Alternative Routes:
+{alt_block}
 
-{json.dumps(alternatives, indent=2)}
-
-Compare the best route with the alternatives.
-
-Explain why the selected route is better.
-
-Mention
-
-- Distance
-- Duration
-- Traffic
-- Toll Cost
-- Score
-
-Return ONLY the explanation.
-"""
+In 2-3 professional sentences, explain why the recommended route is the best choice based on distance, duration, traffic, toll cost, and score.
+Return ONLY the explanation."""
 
     response = client.chat.completions.create(
-
         model="llama-3.3-70b-versatile",
-
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-
+        messages=[{"role": "user", "content": prompt}],
         temperature=0
     )
 

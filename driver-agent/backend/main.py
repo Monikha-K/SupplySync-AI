@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.recommendation import router
+from routes.assignment import router as assignment_router
 
 app = FastAPI(
     title="Driver Recommendation Agent"
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(assignment_router)
 
 @app.get("/")
 def home():

@@ -6,6 +6,7 @@ import Hero from "./components/Hero";
 import RouteForm from "./components/RouteForm";
 import RouteCard from "./components/RouteCard";
 import AlternativeRoutes from "./components/AlternativeRoutes";
+import RouteMap from "./components/RouteMap";
 
 function App() {
   const [routeData, setRouteData] = useState(null);
@@ -22,9 +23,9 @@ function App() {
         <>
           <RouteCard routeData={routeData} />
 
-          <AlternativeRoutes
-            routes={routeData.alternative_routes}
-          />
+          <AlternativeRoutes routes={routeData.alternative_routes} />
+
+          <RouteMap routeData={routeData} />
         </>
       )}
     </>

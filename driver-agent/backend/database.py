@@ -11,3 +11,4 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 client = MongoClient(MONGO_URI)
 db = client[DATABASE_NAME]
 drivers_collection = db[COLLECTION_NAME]
+assignments_collection = db["driver_assignments"]

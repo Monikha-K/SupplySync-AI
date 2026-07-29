@@ -48,7 +48,9 @@ def score_routes(routes, priority):
 
             "toll_cost": toll,
 
-            "score": round(score, 2)
+            "score": round(score, 2),
+
+            "geometry": route.get("geometry", [])
 
         })
 
